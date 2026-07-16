@@ -186,33 +186,7 @@ The prompt must include:
 3. **What verification to run** — build, test, or type-check command
 4. **What to return** — status (DONE/BLOCKED/NEEDS_CONTEXT), commits, test results, concerns
 
-### Per-task execution (subagent-driven development)
-
-Use this pattern for each task when executing a plan:
-
-### 1. Before dispatch — write task brief
-```bash
-# Run the script to extract one task from the plan into a file
-.opencode/skills/subagent-driven-development/scripts/task-brief PLAN_FILE N
-# → writes .superpowers/sdd/task-N-brief.md
-```
-
-### 2. Dispatch subagent — reference the brief file
-```
-prompt="Task N of the plan.
-Read .superpowers/sdd/task-N-brief.md first — it is your requirements.
-[Add context from earlier tasks the brief cannot know]
-Write your full report to .superpowers/sdd/task-N-report.md.
-Return only: status (DONE/BLOCKED/NEEDS_CONTEXT), commits made, one-line test summary, concerns."
-```
-Do NOT paste the task text inline. The file stays on disk, not in context.
-
-### 3. After review — update progress ledger
-```bash
-echo "Task N: complete (<sha>, review clean)" >> .superpowers/sdd/progress.md
-```
-
-### 4. Commit — single line only
+## Commit — single line only
 ```bash
 git add <files> && git commit -m "type(scope): concise description"
 ```
@@ -230,6 +204,5 @@ No body text in the commit. If the subject needs more info, put it in the scope.
 - `.opencode/.gitignore` ignores `node_modules`, `package.json`, `package-lock.json`, `bun.lock`, `.gitignore` itself
 - Two agent copies exist (`.opencode/agents/` and `.agents/`) — keep `.opencode/agents/` as source of truth
 - Git repo initialized on branch `phase/2-infra`. Never commit to `main`/`master` directly.
-- `.superpowers/sdd/` has its own `.gitignore` with `*` — briefs/reports are AI scratch files, not committed to repo
 - Audit reports live in `docs/audits/YYYY-MM-DD/` — these ARE committed (human-facing docs)
 - All components use `cn()`, `data-slot`, named function exports, and `@/*` alias — preserve these patterns
