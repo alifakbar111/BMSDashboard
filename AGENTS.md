@@ -26,26 +26,27 @@ No project-level `package.json` or scripts exist yet. Run `project-setup-agent` 
 
 14 agents in `.opencode/agents/` (source of truth) mirrored to `.agents/`. Always edit `.opencode/agents/`, then sync to `.agents/`.
 
-| Agent | When to use |
-|---|---|
-| orchestrator | Kicking off full build, routing multi-domain work |
-| project-setup | Scaffolding project, installing deps, creating structure |
-| data-explorer | Profiling CSV files before schema design |
-| infra | Prisma schema, SQL Server config, seed script |
-| backend | API routes, Prisma queries, aggregation, filtering |
-| frontend | DnD canvas, card types (KPI/Bar/Line/Gauge), floor plan SVG |
-| ui-ux | Tailwind polish, alert severity colors, loading/empty states, dark mode |
-| security-auditor | OWASP audit, SQL injection, XSS, Prisma safety |
-| bug-hunter | Systematic debugging, root-cause analysis |
-| code-review | Code quality, naming, structure, dead code |
-| testing | Unit/integration tests for aggregation, query builder, API |
-| planner | Writing implementation plans with TDD steps |
-| document-writer | README, Architecture Brief, PROMPT_HISTORY.md |
-| session-exporter | Packaging opencode setup for backup/migration |
+| Agent            | When to use                                                             |
+| ---------------- | ----------------------------------------------------------------------- |
+| orchestrator     | Kicking off full build, routing multi-domain work                       |
+| project-setup    | Scaffolding project, installing deps, creating structure                |
+| data-explorer    | Profiling CSV files before schema design                                |
+| infra            | Prisma schema, SQL Server config, seed script                           |
+| backend          | API routes, Prisma queries, aggregation, filtering                      |
+| frontend         | DnD canvas, card types (KPI/Bar/Line/Gauge), floor plan SVG             |
+| ui-ux            | Tailwind polish, alert severity colors, loading/empty states, dark mode |
+| security-auditor | OWASP audit, SQL injection, XSS, Prisma safety                          |
+| bug-hunter       | Systematic debugging, root-cause analysis                               |
+| code-review      | Code quality, naming, structure, dead code                              |
+| testing          | Unit/integration tests for aggregation, query builder, API              |
+| planner          | Writing implementation plans with TDD steps                             |
+| document-writer  | README, Architecture Brief, PROMPT_HISTORY.md                           |
+| session-exporter | Packaging opencode setup for backup/migration                           |
 
 ## Skills
 
 21 installed skills across 3 locations:
+
 - `.opencode/skills/` — 15 skills
 - `.agents/skills/` — 4 project-local skills (installed via `npx skills add`)
 
