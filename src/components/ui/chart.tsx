@@ -77,6 +77,10 @@ function ChartContainer({
   );
 }
 
+// WARNING: ChartConfig values must be statically defined.
+// NEVER pass user-controlled data into color/theme values.
+// User-controlled color values create a CSS injection vector
+// via the dangerouslySetInnerHTML below.
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([, config]) => config.theme ?? config.color);
 
