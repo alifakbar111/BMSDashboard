@@ -321,7 +321,7 @@ Write to `docker-compose.yml`:
 ```yaml
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2025-latest
     container_name: bms-sqlserver
     environment:
       SA_PASSWORD: ${SA_PASSWORD}
