@@ -303,6 +303,74 @@ git checkout -b phase/2-infra
 
 ---
 
+### Task 1.5: Local Database Setup — Docker Compose for SQL Server
+
+**Files:**
+
+- Create: `docker-compose.yml`
+
+> **Note:** SQL Server must be running locally for Prisma schema push and seed to work. This task should run before any schema or seed work.
+
+- [ ] **Step 1: Create docker-compose.yml**
+
+Write to `docker-compose.yml`:
+
+```yaml
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bms-sqlserver
+    environment:
+      SA_PASSWORD: ${SA_PASSWORD}
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P ${SA_PASSWORD} -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  sqlserver_data:
+```
+
+- [ ] **Step 2: Add SA_PASSWORD to .env**
+
+Ensure `.env` has both `DATABASE_URL` and `SA_PASSWORD` with matching values:
+
+```
+DATABASE_URL="sqlserver://localhost:1433;database=bms_dashboard;user=SA;password=Y0uRStrOng!P4ssw0rd;trustServerCertificate=true"
+SA_PASSWORD="Y0uRStrOng!P4ssw0rd"
+```
+
+> `docker-compose.yml` reads `${SA_PASSWORD}` from `.env` (Docker Compose auto-loads it). `DATABASE_URL` is used by Prisma. Both passwords must match.
+
+- [ ] **Step 3: Start SQL Server**
+
+```bash
+docker compose up -d
+```
+
+Wait for health check to pass:
+```bash
+docker compose ps
+# Should show "healthy"
+```
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add docker-compose.yml
+git commit -m "infra(db): add Docker Compose for local SQL Server 2022"
+```
+
+---
+
 ### Task 2: Data Exploration — Profile CSV Files
 
 **Files:**
