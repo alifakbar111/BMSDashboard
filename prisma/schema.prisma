@@ -23,6 +23,9 @@ model EnergyConsumption {
   costUsd      Float   @map("cost_usd")
   sourceSystem String  @map("source_system")
 
+  @@index([buildingId, floor, zone, timestamp])
+  @@index([deviceId])
+  @@index([timestamp])
   @@map("energy_consumption")
 }
 
@@ -44,6 +47,9 @@ model HvacPerformance {
   energyEfficiencyRatio Float   @map("energy_efficiency_ratio")
   operatingStatus       String  @map("operating_status")
 
+  @@index([buildingId, floor, zone, timestamp])
+  @@index([unitId])
+  @@index([timestamp])
   @@map("hvac_performance")
 }
 
@@ -63,6 +69,8 @@ model Occupancy {
   entryCount           Int    @map("entry_count")
   exitCount            Int    @map("exit_count")
 
+  @@index([buildingId, floor, zone, timestamp])
+  @@index([timestamp])
   @@map("occupancy")
 }
 
@@ -86,5 +94,11 @@ model AlertsEvent {
   status           String
   acknowledgedBy   String?  @map("acknowledged_by")
 
+  @@index([buildingId, floor, zone, timestamp])
+  @@index([severity])
+  @@index([category])
+  @@index([status])
+  @@index([deviceId])
+  @@index([timestamp])
   @@map("alerts_events")
 }
