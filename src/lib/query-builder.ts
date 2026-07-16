@@ -121,7 +121,7 @@ export function buildQuery(
 } {
   const table = config.dataSource!;
   const modelName = getPrismaModel(table);
-  const where = buildWhereClause(globalFilters, config.filter);
+  const where = buildWhereClause(globalFilters, config.filter ?? undefined);
 
   const groupBy: string[] = [];
   const select: Record<string, boolean> = {};
