@@ -77,23 +77,24 @@ tests/
 
 All 9 bonus points listed in the spec are integrated into the relevant tasks below:
 
-| # | Bonus | Status | Where |
-|---|---|---|---|
-| 1 | **Card resizing** (1×1, 2×1, 1×2, 2×2) | ✅ Added | Task 10 (store: `resizeCard`), Task 11 (DashboardCard: size button group) |
-| 2 | **Export/Import layout** (JSON file) | ✅ Added | Task 11 (CardPalette: export/import buttons + file dialog) |
-| 3 | **Dark mode toggle** | ✅ Built-in | shadcn preset + next-themes in Navbar (Task 18) |
-| 4 | **Animated transitions** (card add/remove) | ✅ Added | Task 11 (CSS `fadeIn` keyframes + `transition-all`), Task 20 (globals.css `@keyframes fadeIn`) |
-| 5 | **Card duplication** | ✅ Added | Task 10 (store: `duplicateCard`), Task 11 (DashboardCard: duplicate button) |
-| 6 | **Real-time clock** (current time + highlight on line charts) | ✅ Added | Task 15 (LineChartCard: `useEffect` clock + `ReferenceLine` for nearest data point) |
-| 7 | **Print/PDF export** | ✅ Added | Task 11 (CardPalette: print button + `window.print()`), Task 20 (globals.css `@media print` styles) |
-| 8 | **Unit tests** | ✅ Built-in | Tasks 21-22 (6 test files: store, aggregation, query-builder, API, floor plan, occupancy) |
-| 9 | **Query logging** (Prisma query log with duration) | ✅ Added | Task 5 (prisma.ts: `$on("query")` event listener) |
+| #   | Bonus                                                         | Status      | Where                                                                                               |
+| --- | ------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| 1   | **Card resizing** (1×1, 2×1, 1×2, 2×2)                        | ✅ Added    | Task 10 (store: `resizeCard`), Task 11 (DashboardCard: size button group)                           |
+| 2   | **Export/Import layout** (JSON file)                          | ✅ Added    | Task 11 (CardPalette: export/import buttons + file dialog)                                          |
+| 3   | **Dark mode toggle**                                          | ✅ Built-in | shadcn preset + next-themes in Navbar (Task 18)                                                     |
+| 4   | **Animated transitions** (card add/remove)                    | ✅ Added    | Task 11 (CSS `fadeIn` keyframes + `transition-all`), Task 20 (globals.css `@keyframes fadeIn`)      |
+| 5   | **Card duplication**                                          | ✅ Added    | Task 10 (store: `duplicateCard`), Task 11 (DashboardCard: duplicate button)                         |
+| 6   | **Real-time clock** (current time + highlight on line charts) | ✅ Added    | Task 15 (LineChartCard: `useEffect` clock + `ReferenceLine` for nearest data point)                 |
+| 7   | **Print/PDF export**                                          | ✅ Added    | Task 11 (CardPalette: print button + `window.print()`), Task 20 (globals.css `@media print` styles) |
+| 8   | **Unit tests**                                                | ✅ Built-in | Tasks 21-22 (6 test files: store, aggregation, query-builder, API, floor plan, occupancy)           |
+| 9   | **Query logging** (Prisma query log with duration)            | ✅ Added    | Task 5 (prisma.ts: `$on("query")` event listener)                                                   |
 
 ---
 
 ### Task 1: Project Setup — Scaffold Next.js + shadcn/ui + Install Dependencies + Git Init
 
 **Files:**
+
 - Create: Next.js scaffold via CLI, shadcn init + components, `.gitignore`
 - Modified: `src/app/layout.tsx`, `src/app/page.tsx`, `globals.css`
 
@@ -115,6 +116,7 @@ pnpm dlx shadcn@latest init --preset b7BEjszMO0 --base radix --template next
 ```
 
 Follow any interactive prompts:
+
 - Accept the default components directory (`@/components/ui`)
 - Accept the default utils path (`@/lib/utils`)
 - Accept the default Tailwind config merge
@@ -138,6 +140,7 @@ pnpm add -D vitest @testing-library/react @testing-library/jest-dom jsdom @types
 - [ ] **Step 5: Add lint/format scripts to package.json**
 
 Read `package.json` and add to `"scripts"`:
+
 ```json
 "lint": "oxlint .",
 "format": "oxfmt .",
@@ -148,17 +151,21 @@ Read `package.json` and add to `"scripts"`:
 - [ ] **Step 6: Create QueryProvider for TanStack Query**
 
 Write to `src/components/layout/QueryProvider.tsx`:
+
 ```tsx
 "use client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: {
-      queries: { staleTime: 30_000, retry: 1 },
-    },
-  }));
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: { staleTime: 30_000, retry: 1 },
+        },
+      }),
+  );
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 ```
@@ -166,6 +173,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
 - [ ] **Step 7: Create root .gitignore**
 
 Write file `.gitignore`:
+
 ```
 node_modules/
 .next/
@@ -179,6 +187,7 @@ next-env.d.ts
 - [ ] **Step 8: Verify src/app/globals.css**
 
 Read the file — verify it contains:
+
 - Tailwind directives (`@tailwind base/components/utilities`)
 - CSS variables for shadcn theme (light + dark)
 - shadcn's `@layer base` with theme variables
@@ -189,6 +198,7 @@ Check if `src/components/layout/ThemeProvider.tsx` exists after shadcn init.
 If not, create it:
 
 Write to `src/components/layout/ThemeProvider.tsx`:
+
 ```tsx
 "use client";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
@@ -216,10 +226,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <QueryProvider>
-            {children}
-          </QueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>{children}</QueryProvider>
         </ThemeProvider>
       </body>
     </html>
@@ -293,11 +306,13 @@ git checkout -b phase/2-infra
 ### Task 2: Data Exploration — Profile CSV Files
 
 **Files:**
+
 - Create: `scripts/profile-data.ts`
 
 - [ ] **Step 1: Create profiling script**
 
 Write to `scripts/profile-data.ts`:
+
 ```typescript
 import * as fs from "fs";
 import * as path from "path";
@@ -332,7 +347,9 @@ function profileCSV(filePath: string): void {
     console.log(`  ${header}: ${nonNull}/${rows.length} non-null, ${unique.size} unique`);
     if (numValues.length > 0) {
       const avg = numValues.reduce((a, b) => a + b, 0) / numValues.length;
-      console.log(`    range: ${Math.min(...numValues)} - ${Math.max(...numValues)}, avg: ${avg.toFixed(2)}`);
+      console.log(
+        `    range: ${Math.min(...numValues)} - ${Math.max(...numValues)}, avg: ${avg.toFixed(2)}`,
+      );
     }
     console.log(`    samples: ${[...unique].slice(0, 3).join(", ")}`);
   }
@@ -363,6 +380,7 @@ git commit -m "chore(data): add CSV profiling script"
 ### Task 3: Prisma Schema — Define Database Models
 
 **Files:**
+
 - Create: `prisma/schema.prisma`, `.env`
 
 - [ ] **Step 1: Create .env**
@@ -488,12 +506,14 @@ git commit -m "infra(prisma): add schema with 4 BMS data models"
 ### Task 4: Seed Script — Import CSV Data into SQL Server
 
 **Files:**
+
 - Create: `prisma/seed.ts`
 - Modify: `package.json`
 
 - [ ] **Step 1: Write prisma/seed.ts**
 
 Write the seed script that reads all 4 CSV files, parses each row, and inserts into the database using Prisma Client. The script should:
+
 - Parse CSV files from `data/` directory using Node.js `fs.readFileSync` and string splitting
 - Handle timestamp -> `new Date(row.timestamp)` conversion
 - Parse integers with `parseInt(row.field, 10)` for floor, zone_capacity, person_count, etc.
@@ -543,6 +563,7 @@ git checkout -b phase/3-backend
 ### Task 5: Prisma Client Singleton + Shared Types
 
 **Files:**
+
 - Create: `src/lib/prisma.ts`, `src/lib/types.ts`
 
 - [ ] **Step 1: Write src/lib/prisma.ts with query logging**
@@ -569,9 +590,7 @@ function createPrismaClient() {
   return client;
 }
 
-export const prisma =
-  globalForPrisma.prisma ??
-  createPrismaClient();
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 ```
@@ -583,28 +602,51 @@ export type TableName = "energy_consumption" | "hvac_performance" | "occupancy" 
 export type CardType = "kpi" | "bar" | "line" | "gauge";
 export type AggregationType = "sum" | "avg" | "min" | "max" | "count";
 
-export interface AxisConfig { field: string; label: string; }
-export interface FilterConfig { field: string; operator: "eq" | "neq" | "gt" | "gte" | "lt" | "lte"; value: string | number; }
+export interface AxisConfig {
+  field: string;
+  label: string;
+}
+export interface FilterConfig {
+  field: string;
+  operator: "eq" | "neq" | "gt" | "gte" | "lt" | "lte";
+  value: string | number;
+}
 
 export interface CardConfig {
-  id: string; type: CardType; title: string; dataSource: TableName | null;
-  xAxis: AxisConfig | null; yAxis: AxisConfig | null; aggregation: AggregationType;
-  groupBy: AxisConfig | null; filter: FilterConfig | null;
-  gaugeMin?: number; gaugeMax?: number; gaugeTarget?: number;
+  id: string;
+  type: CardType;
+  title: string;
+  dataSource: TableName | null;
+  xAxis: AxisConfig | null;
+  yAxis: AxisConfig | null;
+  aggregation: AggregationType;
+  groupBy: AxisConfig | null;
+  filter: FilterConfig | null;
+  gaugeMin?: number;
+  gaugeMax?: number;
+  gaugeTarget?: number;
 }
 
 export interface GlobalFilters {
-  buildingId: string | null; floor: number | null;
+  buildingId: string | null;
+  floor: number | null;
   timeRange: "today" | "last7" | "custom" | null;
-  customStart: string | null; customEnd: string | null;
+  customStart: string | null;
+  customEnd: string | null;
 }
 
 export interface QueryResult {
-  data: Record<string, unknown>[]; aggregated: number | null;
+  data: Record<string, unknown>[];
+  aggregated: number | null;
 }
 
 export interface DashboardCard {
-  id: string; config: CardConfig; x: number; y: number; width: number; height: number;
+  id: string;
+  config: CardConfig;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 ```
 
@@ -620,17 +662,20 @@ npx tsc --noEmit 2>&1 | head -10
 git add src/lib/prisma.ts src/lib/types.ts
 git commit -m "feat(lib): add Prisma singleton and shared TypeScript types"
 ```
+
 ---
 
 ### Task 6: Aggregation Logic + Query Builder
 
 **Files:**
+
 - Create: `src/lib/aggregation.ts`
 - Create: `src/lib/query-builder.ts`
 - Test: `tests/unit/aggregation.test.ts`
 - Test: `tests/unit/query-builder.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AggregationType`, `CardConfig`, `GlobalFilters`, `TableName` from `src/lib/types.ts`
 - Produces:
   - `aggregate(values: number[], type: AggregationType): number`
@@ -640,6 +685,7 @@ git commit -m "feat(lib): add Prisma singleton and shared TypeScript types"
 - [ ] **Step 1: Write the failing aggregation test**
 
 Write to `tests/unit/aggregation.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import { aggregate } from "../../src/lib/aggregation";
@@ -692,6 +738,7 @@ Expected: FAIL — `aggregate` not defined.
 - [ ] **Step 3: Write minimal aggregation implementation**
 
 Write to `src/lib/aggregation.ts`:
+
 ```typescript
 import type { AggregationType } from "./types";
 
@@ -726,6 +773,7 @@ Expected: PASS — all 8 tests pass.
 - [ ] **Step 5: Write the failing query-builder test**
 
 Write to `tests/unit/query-builder.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import { buildWhereClause, buildQuery } from "../../src/lib/query-builder";
@@ -734,28 +782,44 @@ import type { CardConfig, GlobalFilters, FilterConfig } from "../../src/lib/type
 describe("buildWhereClause", () => {
   it("returns empty object when no filters set", () => {
     const filters: GlobalFilters = {
-      buildingId: null, floor: null, timeRange: null, customStart: null, customEnd: null,
+      buildingId: null,
+      floor: null,
+      timeRange: null,
+      customStart: null,
+      customEnd: null,
     };
     expect(buildWhereClause(filters)).toEqual({});
   });
 
   it("adds buildingId filter", () => {
     const filters: GlobalFilters = {
-      buildingId: "BLD-001", floor: null, timeRange: null, customStart: null, customEnd: null,
+      buildingId: "BLD-001",
+      floor: null,
+      timeRange: null,
+      customStart: null,
+      customEnd: null,
     };
     expect(buildWhereClause(filters)).toEqual({ buildingId: "BLD-001" });
   });
 
   it("adds floor filter", () => {
     const filters: GlobalFilters = {
-      buildingId: null, floor: 1, timeRange: null, customStart: null, customEnd: null,
+      buildingId: null,
+      floor: 1,
+      timeRange: null,
+      customStart: null,
+      customEnd: null,
     };
     expect(buildWhereClause(filters)).toEqual({ floor: 1 });
   });
 
   it("adds timeRange filter for today", () => {
     const filters: GlobalFilters = {
-      buildingId: null, floor: null, timeRange: "today", customStart: null, customEnd: null,
+      buildingId: null,
+      floor: null,
+      timeRange: "today",
+      customStart: null,
+      customEnd: null,
     };
     const result = buildWhereClause(filters);
     expect(result).toHaveProperty("timestamp");
@@ -763,7 +827,11 @@ describe("buildWhereClause", () => {
 
   it("merges global filters with card filter", () => {
     const filters: GlobalFilters = {
-      buildingId: "BLD-001", floor: null, timeRange: null, customStart: null, customEnd: null,
+      buildingId: "BLD-001",
+      floor: null,
+      timeRange: null,
+      customStart: null,
+      customEnd: null,
     };
     const cardFilter: FilterConfig = { field: "zone", operator: "eq", value: "Zone-A" };
     const result = buildWhereClause(filters, cardFilter);
@@ -775,12 +843,22 @@ describe("buildWhereClause", () => {
 describe("buildQuery", () => {
   it("returns query for KPI card", () => {
     const config: CardConfig = {
-      id: "card-1", type: "kpi", title: "Total Energy", dataSource: "energy_consumption",
-      xAxis: null, yAxis: { field: "energy_kwh", label: "Energy (kWh)" },
-      aggregation: "sum", groupBy: null, filter: null,
+      id: "card-1",
+      type: "kpi",
+      title: "Total Energy",
+      dataSource: "energy_consumption",
+      xAxis: null,
+      yAxis: { field: "energy_kwh", label: "Energy (kWh)" },
+      aggregation: "sum",
+      groupBy: null,
+      filter: null,
     };
     const filters: GlobalFilters = {
-      buildingId: "BLD-001", floor: null, timeRange: null, customStart: null, customEnd: null,
+      buildingId: "BLD-001",
+      floor: null,
+      timeRange: null,
+      customStart: null,
+      customEnd: null,
     };
     const query = buildQuery(config, filters);
     expect(query.table).toBe("energy_consumption");
@@ -789,12 +867,22 @@ describe("buildQuery", () => {
 
   it("returns query for Bar chart with xAxis and yAxis", () => {
     const config: CardConfig = {
-      id: "card-2", type: "bar", title: "Energy by Zone", dataSource: "energy_consumption",
-      xAxis: { field: "zone", label: "Zone" }, yAxis: { field: "energy_kwh", label: "Energy (kWh)" },
-      aggregation: "sum", groupBy: null, filter: null,
+      id: "card-2",
+      type: "bar",
+      title: "Energy by Zone",
+      dataSource: "energy_consumption",
+      xAxis: { field: "zone", label: "Zone" },
+      yAxis: { field: "energy_kwh", label: "Energy (kWh)" },
+      aggregation: "sum",
+      groupBy: null,
+      filter: null,
     };
     const filters: GlobalFilters = {
-      buildingId: null, floor: null, timeRange: null, customStart: null, customEnd: null,
+      buildingId: null,
+      floor: null,
+      timeRange: null,
+      customStart: null,
+      customEnd: null,
     };
     const query = buildQuery(config, filters);
     expect(query.table).toBe("energy_consumption");
@@ -815,19 +903,25 @@ Expected: FAIL — functions not defined.
 - [ ] **Step 7: Write minimal query-builder implementation**
 
 Write to `src/lib/query-builder.ts`:
+
 ```typescript
 import type { CardConfig, GlobalFilters, FilterConfig, TableName } from "./types";
 
 function parseOperatorToPrisma(operator: "eq" | "neq" | "gt" | "gte" | "lt" | "lte"): string {
   const map: Record<string, string> = {
-    eq: "equals", neq: "not", gt: "gt", gte: "gte", lt: "lt", lte: "lte",
+    eq: "equals",
+    neq: "not",
+    gt: "gt",
+    gte: "gte",
+    lt: "lt",
+    lte: "lte",
   };
   return map[operator] || "equals";
 }
 
 export function buildWhereClause(
   filters: GlobalFilters,
-  cardFilter?: FilterConfig
+  cardFilter?: FilterConfig,
 ): Record<string, unknown> {
   const where: Record<string, unknown> = {};
 
@@ -868,28 +962,50 @@ function getPrismaModel(table: TableName): string {
 function mapFieldName(field: string, table: TableName): string {
   const fieldMappings: Record<TableName, Record<string, string>> = {
     energy_consumption: {
-      building_id: "buildingId", device_type: "deviceType", device_id: "deviceId",
-      energy_kwh: "energyKwh", power_kw: "powerKw", voltage_v: "voltageV",
-      current_a: "currentA", power_factor: "powerFactor", cost_usd: "costUsd",
+      building_id: "buildingId",
+      device_type: "deviceType",
+      device_id: "deviceId",
+      energy_kwh: "energyKwh",
+      power_kw: "powerKw",
+      voltage_v: "voltageV",
+      current_a: "currentA",
+      power_factor: "powerFactor",
+      cost_usd: "costUsd",
       source_system: "sourceSystem",
     },
     hvac_performance: {
-      building_id: "buildingId", unit_id: "unitId", setpoint_temp_c: "setpointTempC",
-      actual_temp_c: "actualTempC", outdoor_temp_c: "outdoorTempC",
-      humidity_percent: "humidityPercent", airflow_m3h: "airflowM3h",
-      filter_status_percent: "filterStatusPercent", compressor_hours: "compressorHours",
-      energy_efficiency_ratio: "energyEfficiencyRatio", operating_status: "operatingStatus",
+      building_id: "buildingId",
+      unit_id: "unitId",
+      setpoint_temp_c: "setpointTempC",
+      actual_temp_c: "actualTempC",
+      outdoor_temp_c: "outdoorTempC",
+      humidity_percent: "humidityPercent",
+      airflow_m3h: "airflowM3h",
+      filter_status_percent: "filterStatusPercent",
+      compressor_hours: "compressorHours",
+      energy_efficiency_ratio: "energyEfficiencyRatio",
+      operating_status: "operatingStatus",
     },
     occupancy: {
-      building_id: "buildingId", zone_capacity: "zoneCapacity", person_count: "personCount",
-      occupancy_rate_percent: "occupancyRatePercent", co2_ppm: "co2Ppm",
-      temperature_c: "temperatureC", humidity_percent: "humidityPercent",
-      air_quality_index: "airQualityIndex", entry_count: "entryCount", exit_count: "exitCount",
+      building_id: "buildingId",
+      zone_capacity: "zoneCapacity",
+      person_count: "personCount",
+      occupancy_rate_percent: "occupancyRatePercent",
+      co2_ppm: "co2Ppm",
+      temperature_c: "temperatureC",
+      humidity_percent: "humidityPercent",
+      air_quality_index: "airQualityIndex",
+      entry_count: "entryCount",
+      exit_count: "exitCount",
     },
     alerts_events: {
-      building_id: "buildingId", alert_id: "alertId", device_id: "deviceId",
-      alarm_type: "alarmType", duration_minutes: "durationMinutes",
-      resolved_at: "resolvedAt", acknowledged_by: "acknowledgedBy",
+      building_id: "buildingId",
+      alert_id: "alertId",
+      device_id: "deviceId",
+      alarm_type: "alarmType",
+      duration_minutes: "durationMinutes",
+      resolved_at: "resolvedAt",
+      acknowledged_by: "acknowledgedBy",
     },
   };
   return fieldMappings[table]?.[field] ?? field;
@@ -897,7 +1013,7 @@ function mapFieldName(field: string, table: TableName): string {
 
 export function buildQuery(
   config: CardConfig,
-  globalFilters: GlobalFilters
+  globalFilters: GlobalFilters,
 ): {
   table: TableName;
   modelName: string;
@@ -963,10 +1079,12 @@ git commit -m "feat(lib): add aggregation logic and Prisma query builder"
 ### Task 7: Columns API — GET /api/columns
 
 **Files:**
+
 - Create: `src/app/api/columns/route.ts`
 - Test: `tests/unit/api-columns.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing (static column metadata)
 - Produces: `GET /api/columns?source=energy_consumption` -> `{ columns: ColumnInfo[] }`
   - `export function getTableColumns(tableName: string): ColumnInfo[]`
@@ -975,6 +1093,7 @@ git commit -m "feat(lib): add aggregation logic and Prisma query builder"
 - [ ] **Step 1: Write the failing test**
 
 Write to `tests/unit/api-columns.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import { getTableColumns } from "../../src/app/api/columns/route";
@@ -1019,6 +1138,7 @@ Expected: FAIL — `getTableColumns` not defined.
 - [ ] **Step 3: Write the columns API route**
 
 Write to `src/app/api/columns/route.ts`:
+
 ```typescript
 import { NextRequest, NextResponse } from "next/server";
 
@@ -1138,10 +1258,12 @@ git commit -m "feat(api): add GET /api/columns endpoint for dynamic axis selecti
 ### Task 8: Query API — POST /api/query
 
 **Files:**
+
 - Create: `src/app/api/query/route.ts`
 - Test: `tests/unit/api-query.test.ts`
 
 **Interfaces:**
+
 - Consumes: `prisma` from `src/lib/prisma.ts`, `buildQuery` from `src/lib/query-builder.ts`, `aggregate` from `src/lib/aggregation.ts`
 - Produces: `POST /api/query` body `{ config: CardConfig, globalFilters: GlobalFilters }` -> `{ data, aggregated }`
   - `export function processQueryResult(rows, aggregationType, yField): { data, aggregated }`
@@ -1149,6 +1271,7 @@ git commit -m "feat(api): add GET /api/columns endpoint for dynamic axis selecti
 - [ ] **Step 1: Write the failing test**
 
 Write to `tests/unit/api-query.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import { processQueryResult } from "../../src/app/api/query/route";
@@ -1192,6 +1315,7 @@ Expected: FAIL — `processQueryResult` not defined.
 - [ ] **Step 3: Write the query API route**
 
 Write to `src/app/api/query/route.ts`:
+
 ```typescript
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -1212,7 +1336,7 @@ function getNumericValue(row: Record<string, unknown>, field: string): number {
 export function processQueryResult(
   rows: Record<string, unknown>[],
   aggregationType: string,
-  yField: string
+  yField: string,
 ): { data: Record<string, unknown>[]; aggregated: number } {
   if (rows.length === 0) return { data: [], aggregated: 0 };
   const values = rows.map((row) => getNumericValue(row, yField));
@@ -1254,7 +1378,7 @@ export async function POST(request: NextRequest) {
     console.error("Query API error:", e);
     return NextResponse.json(
       { error: "Failed to execute query", details: (e as Error).message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -1280,10 +1404,12 @@ git commit -m "feat(api): add POST /api/query for dynamic card data queries"
 ### Task 9: Occupancy Latest API — GET /api/occupancy/latest
 
 **Files:**
+
 - Create: `src/app/api/occupancy/latest/route.ts`
 - Test: `tests/unit/api-occupancy.test.ts`
 
 **Interfaces:**
+
 - Consumes: `prisma` from `src/lib/prisma.ts`
 - Produces: `GET /api/occupancy/latest?building_id=BLD-001&floor=1` -> `{ buildingId, floor, zones: ZoneData[], timestamp }`
   - `export function getLatestPerZone(rows): Record<string, unknown>[]`
@@ -1291,6 +1417,7 @@ git commit -m "feat(api): add POST /api/query for dynamic card data queries"
 - [ ] **Step 1: Write the failing test**
 
 Write to `tests/unit/api-occupancy.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import { getLatestPerZone } from "../../src/app/api/occupancy/latest/route";
@@ -1298,9 +1425,24 @@ import { getLatestPerZone } from "../../src/app/api/occupancy/latest/route";
 describe("getLatestPerZone", () => {
   it("returns latest reading per zone from sorted data", () => {
     const rows = [
-      { zone: "Zone-A", timestamp: "2025-06-01T08:00:00Z", person_count: 120, occupancy_rate_percent: 80 },
-      { zone: "Zone-A", timestamp: "2025-06-01T09:00:00Z", person_count: 100, occupancy_rate_percent: 67 },
-      { zone: "Zone-B", timestamp: "2025-06-01T08:00:00Z", person_count: 62, occupancy_rate_percent: 78 },
+      {
+        zone: "Zone-A",
+        timestamp: "2025-06-01T08:00:00Z",
+        person_count: 120,
+        occupancy_rate_percent: 80,
+      },
+      {
+        zone: "Zone-A",
+        timestamp: "2025-06-01T09:00:00Z",
+        person_count: 100,
+        occupancy_rate_percent: 67,
+      },
+      {
+        zone: "Zone-B",
+        timestamp: "2025-06-01T08:00:00Z",
+        person_count: 62,
+        occupancy_rate_percent: 78,
+      },
     ];
     const result = getLatestPerZone(rows);
     expect(result).toHaveLength(2);
@@ -1315,7 +1457,14 @@ describe("getLatestPerZone", () => {
   });
 
   it("handles single zone single row", () => {
-    const rows = [{ zone: "Zone-A", timestamp: "2025-06-01T08:00:00Z", person_count: 50, occupancy_rate_percent: 33 }];
+    const rows = [
+      {
+        zone: "Zone-A",
+        timestamp: "2025-06-01T08:00:00Z",
+        person_count: 50,
+        occupancy_rate_percent: 33,
+      },
+    ];
     const result = getLatestPerZone(rows);
     expect(result).toHaveLength(1);
     expect(result[0].person_count).toBe(50);
@@ -1334,6 +1483,7 @@ Expected: FAIL — `getLatestPerZone` not defined.
 - [ ] **Step 3: Write the occupancy latest API route**
 
 Write to `src/app/api/occupancy/latest/route.ts`:
+
 ```typescript
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -1359,7 +1509,7 @@ export async function GET(request: NextRequest) {
   if (!buildingId || !floor) {
     return NextResponse.json(
       { error: "Missing required parameters: building_id, floor" },
-      { status: 400 }
+      { status: 400 },
     );
   }
   const floorNum = parseInt(floor, 10);
@@ -1374,7 +1524,10 @@ export async function GET(request: NextRequest) {
     });
     const latestPerZone = getLatestPerZone(rows as unknown as Record<string, unknown>[]);
     return NextResponse.json({
-      buildingId, floor: floorNum, zones: latestPerZone, timestamp: new Date().toISOString(),
+      buildingId,
+      floor: floorNum,
+      zones: latestPerZone,
+      timestamp: new Date().toISOString(),
     });
   } catch (e) {
     console.error("Occupancy API error:", e);
@@ -1415,13 +1568,14 @@ git checkout -b phase/4-frontend
 ### Task 10: Zustand Dashboard Store
 
 **Files:**
+
 - Create: `src/store/dashboard-store.ts`
 - Test: `tests/unit/dashboard-store.test.ts`
 
 ---
 
-
 **Interfaces:**
+
 - Consumes: `DashboardCard`, `CardConfig`, `GlobalFilters`, `CardType` from `src/lib/types.ts`
 - Produces: `useDashboardStore` with:
   - `cards: DashboardCard[]`
@@ -1437,6 +1591,7 @@ git checkout -b phase/4-frontend
 - [ ] **Step 1: Write the failing store test**
 
 Write to `tests/unit/dashboard-store.test.ts`:
+
 ```typescript
 import { describe, it, expect, beforeEach } from "vitest";
 import { useDashboardStore } from "../../src/store/dashboard-store";
@@ -1445,7 +1600,13 @@ describe("dashboard-store", () => {
   beforeEach(() => {
     useDashboardStore.setState({
       cards: [],
-      filters: { buildingId: null, floor: null, timeRange: null, customStart: null, customEnd: null },
+      filters: {
+        buildingId: null,
+        floor: null,
+        timeRange: null,
+        customStart: null,
+        customEnd: null,
+      },
     });
   });
 
@@ -1465,7 +1626,9 @@ describe("dashboard-store", () => {
 
   it("updates card config", () => {
     const id = useDashboardStore.getState().addCard("kpi");
-    useDashboardStore.getState().updateCardConfig(id, { title: "Total Energy", dataSource: "energy_consumption" });
+    useDashboardStore
+      .getState()
+      .updateCardConfig(id, { title: "Total Energy", dataSource: "energy_consumption" });
     const card = useDashboardStore.getState().cards.find((c) => c.id === id);
     expect(card?.config.title).toBe("Total Energy");
     expect(card?.config.dataSource).toBe("energy_consumption");
@@ -1541,6 +1704,7 @@ Expected: FAIL — import errors.
 - [ ] **Step 3: Write the zustand store**
 
 Write to `src/store/dashboard-store.ts`:
+
 ```typescript
 import { create } from "zustand";
 import type { DashboardCard, CardConfig, GlobalFilters, CardType } from "@/lib/types";
@@ -1551,11 +1715,20 @@ function generateId(): string {
 
 function createDefaultConfig(type: CardType): CardConfig {
   const base: CardConfig = {
-    id: generateId(), type, title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Card`,
-    dataSource: null, xAxis: null, yAxis: null, aggregation: "sum", groupBy: null, filter: null,
+    id: generateId(),
+    type,
+    title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Card`,
+    dataSource: null,
+    xAxis: null,
+    yAxis: null,
+    aggregation: "sum",
+    groupBy: null,
+    filter: null,
   };
   if (type === "gauge") {
-    base.gaugeMin = 0; base.gaugeMax = 100; base.gaugeTarget = 75;
+    base.gaugeMin = 0;
+    base.gaugeMax = 100;
+    base.gaugeTarget = 75;
   }
   return base;
 }
@@ -1604,7 +1777,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   updateCardConfig: (id: string, configUpdate: Partial<CardConfig>) => {
     set((state) => ({
       cards: state.cards.map((card) =>
-        card.id === id ? { ...card, config: { ...card.config, ...configUpdate } } : card
+        card.id === id ? { ...card, config: { ...card.config, ...configUpdate } } : card,
       ),
     }));
     get().saveToStorage();
@@ -1615,7 +1788,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     if (!card) return "";
     const newId = `card-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     const newCard: DashboardCard = {
-      ...card, id: newId, config: { ...card.config, id: newId, title: `${card.config.title} (copy)` },
+      ...card,
+      id: newId,
+      config: { ...card.config, id: newId, title: `${card.config.title} (copy)` },
     };
     set((state) => ({ cards: [...state.cards, newCard] }));
     get().saveToStorage();
@@ -1626,7 +1801,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     const dims = SIZE_MAP[size];
     set((state) => ({
       cards: state.cards.map((card) =>
-        card.id === id ? { ...card, width: dims.w, height: dims.h } : card
+        card.id === id ? { ...card, width: dims.w, height: dims.h } : card,
       ),
     }));
     get().saveToStorage();
@@ -1658,14 +1833,18 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         const parsed = JSON.parse(stored);
         set({ cards: parsed.cards ?? [] });
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   },
 
   saveToStorage: () => {
     try {
       const { cards } = get();
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ cards }));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   },
 }));
 ```
@@ -1688,18 +1867,21 @@ git commit -m "feat(store): add zustand dashboard store with card/filter state"
 ### Task 11: Dashboard Canvas with Drag & Drop + Card Palette
 
 **Files:**
+
 - Create: `src/components/dashboard/Canvas.tsx`
 - Create: `src/components/dashboard/CardPalette.tsx`
 - Create: `src/components/dashboard/DashboardCard.tsx`
 - Test: none (visual — verify in browser)
 
 **Interfaces:**
+
 - Consumes: `useDashboardStore` from `src/store/dashboard-store.ts`, `CardType` from `src/lib/types.ts`
 - Produces: Draggable canvas with card palette toolbar
 
 - [ ] **Step 1: Write CardPalette component**
 
 Write to `src/components/dashboard/CardPalette.tsx`:
+
 ```tsx
 "use client";
 import { useRef } from "react";
@@ -1724,8 +1906,11 @@ export default function CardPalette() {
   function handleExport() {
     const blob = new Blob([JSON.stringify({ cards }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "bms-dashboard-layout.json";
-    a.click(); URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "bms-dashboard-layout.json";
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
@@ -1736,29 +1921,52 @@ export default function CardPalette() {
       try {
         const data = JSON.parse(ev.target?.result as string);
         if (data.cards) setCards(data.cards);
-      } catch { alert("Invalid layout file"); }
+      } catch {
+        alert("Invalid layout file");
+      }
     };
     reader.readAsText(file);
   }
 
-  function handlePrint() { window.print(); }
+  function handlePrint() {
+    window.print();
+  }
 
   return (
     <div className="flex items-center gap-2 p-4 border-b card-palette">
       <span className="text-sm font-medium text-muted-foreground mr-1 self-center">Add Card:</span>
       {CARD_TYPES.map(({ type, label, icon }) => (
-        <Button key={type} variant="outline" size="sm" onClick={() => addCard(type)} className="gap-1.5">
-          {icon}<span>{label}</span><Plus className="w-3 h-3" />
+        <Button
+          key={type}
+          variant="outline"
+          size="sm"
+          onClick={() => addCard(type)}
+          className="gap-1.5"
+        >
+          {icon}
+          <span>{label}</span>
+          <Plus className="w-3 h-3" />
         </Button>
       ))}
       <div className="ml-auto flex items-center gap-1 no-print">
         <Button variant="ghost" size="sm" onClick={handleExport} title="Export layout">
           <Download className="w-4 h-4" />
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} title="Import layout">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          title="Import layout"
+        >
           <Upload className="w-4 h-4" />
         </Button>
-        <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleImport}
+          className="hidden"
+        />
         <Button variant="ghost" size="sm" onClick={handlePrint} title="Print dashboard">
           <Printer className="w-4 h-4" />
         </Button>
@@ -1771,6 +1979,7 @@ export default function CardPalette() {
 - [ ] **Step 2: Write DashboardCard wrapper**
 
 Write to `src/components/dashboard/DashboardCard.tsx`:
+
 ```tsx
 "use client";
 import { useSortable } from "@dnd-kit/sortable";
@@ -1781,7 +1990,7 @@ import { useDashboardStore } from "@/store/dashboard-store";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import KPICard from "@/components/cards/KPICard";
- 
+
 interface Props {
   card: DashboardCardType;
   onConfigure: (cardId: string) => void;
@@ -1798,8 +2007,9 @@ export default function DashboardCard({ card, onConfigure }: Props) {
   const removeCard = useDashboardStore((s) => s.removeCard);
   const duplicateCard = useDashboardStore((s) => s.duplicateCard);
   const resizeCard = useDashboardStore((s) => s.resizeCard);
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: card.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: card.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -1812,11 +2022,22 @@ export default function DashboardCard({ card, onConfigure }: Props) {
   const rowSpan = card.height > 1 ? `md:row-span-${card.height}` : "";
 
   return (
-    <div ref={setNodeRef} style={style} className={`${colSpan} ${rowSpan} transition-all duration-200`}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`${colSpan} ${rowSpan} transition-all duration-200`}
+    >
       <Card className="overflow-hidden h-full">
         <CardHeader className="flex flex-row items-center justify-between p-3 border-b">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="cursor-grab active:cursor-grabbing h-8 w-8" {...attributes} {...listeners} aria-label="Drag to reorder">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="cursor-grab active:cursor-grabbing h-8 w-8"
+              {...attributes}
+              {...listeners}
+              aria-label="Drag to reorder"
+            >
               <GripVertical className="w-4 h-4" />
             </Button>
             <h3 className="text-sm font-semibold truncate max-w-[200px]">{card.config.title}</h3>
@@ -1825,32 +2046,68 @@ export default function DashboardCard({ card, onConfigure }: Props) {
             {/* Resize button group */}
             <div className="flex items-center gap-0.5 mr-1">
               {SIZE_OPTIONS.map((opt) => (
-                <Button key={opt.size} variant="ghost" size="icon"
+                <Button
+                  key={opt.size}
+                  variant="ghost"
+                  size="icon"
                   onClick={() => resizeCard(card.id, opt.size)}
                   className={`h-7 w-7 text-[10px] font-mono ${card.width === (opt.size === "wide" || opt.size === "large" ? 2 : 1) && card.height === (opt.size === "tall" || opt.size === "large" ? 2 : 1) ? "bg-accent text-accent-foreground" : ""}`}
-                  aria-label={`Resize to ${opt.size}`}>{opt.label}</Button>
+                  aria-label={`Resize to ${opt.size}`}
+                >
+                  {opt.label}
+                </Button>
               ))}
             </div>
-            <Button variant="ghost" size="icon" onClick={() => duplicateCard(card.id)} className="h-8 w-8" aria-label="Duplicate card">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => duplicateCard(card.id)}
+              className="h-8 w-8"
+              aria-label="Duplicate card"
+            >
               <Copy className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => onConfigure(card.id)} className="h-8 w-8" aria-label="Configure card">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onConfigure(card.id)}
+              className="h-8 w-8"
+              aria-label="Configure card"
+            >
               <Settings className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => removeCard(card.id)} className="h-8 w-8 hover:text-destructive" aria-label="Remove card">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => removeCard(card.id)}
+              className="h-8 w-8 hover:text-destructive"
+              aria-label="Remove card"
+            >
               <X className="w-4 h-4" />
             </Button>
           </div>
         </CardHeader>
         <CardContent className="p-4 min-h-[200px]">
           {!card.config.dataSource ? (
-            <p className="text-sm text-muted-foreground italic text-center mt-8">Click settings to configure this card</p>
+            <p className="text-sm text-muted-foreground italic text-center mt-8">
+              Click settings to configure this card
+            </p>
           ) : (
             <>
               {card.config.type === "kpi" && <KPICard config={card.config} />}
-              {card.config.type === "bar" && <p className="text-sm text-muted-foreground text-center mt-8">Bar chart loading...</p>}
-              {card.config.type === "line" && <p className="text-sm text-muted-foreground text-center mt-8">Line chart loading...</p>}
-              {card.config.type === "gauge" && <p className="text-sm text-muted-foreground text-center mt-8">Gauge loading...</p>}
+              {card.config.type === "bar" && (
+                <p className="text-sm text-muted-foreground text-center mt-8">
+                  Bar chart loading...
+                </p>
+              )}
+              {card.config.type === "line" && (
+                <p className="text-sm text-muted-foreground text-center mt-8">
+                  Line chart loading...
+                </p>
+              )}
+              {card.config.type === "gauge" && (
+                <p className="text-sm text-muted-foreground text-center mt-8">Gauge loading...</p>
+              )}
             </>
           )}
         </CardContent>
@@ -1863,11 +2120,24 @@ export default function DashboardCard({ card, onConfigure }: Props) {
 - [ ] **Step 3: Write Canvas component**
 
 Write to `src/components/dashboard/Canvas.tsx`:
+
 ```tsx
 "use client";
 import { useMemo, useState } from "react";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { useDashboardStore } from "@/store/dashboard-store";
 import DashboardCard from "./DashboardCard";
 import CardConfigModal from "./CardConfigModal";
@@ -1879,7 +2149,7 @@ export default function Canvas() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
   const cardIds = useMemo(() => cards.map((c) => c.id), [cards]);
 
@@ -1897,7 +2167,11 @@ export default function Canvas() {
         <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
             {cards.map((card) => (
-              <DashboardCard key={card.id} card={card} onConfigure={(id) => setConfiguringCardId(id)} />
+              <DashboardCard
+                key={card.id}
+                card={card}
+                onConfigure={(id) => setConfiguringCardId(id)}
+              />
             ))}
           </div>
         </SortableContext>
@@ -1953,38 +2227,60 @@ git commit -m "feat(dashboard): add DnD canvas, card palette, and card wrapper"
 ### Task 12: Card Config Modal — Dynamic Axis Selection
 
 **Files:**
+
 - Create: `src/components/dashboard/CardConfigModal.tsx`
 - Test: none (manual verification — UI interaction)
 
 **Interfaces:**
+
 - Consumes: `useDashboardStore`, `ColumnInfo` from `src/app/api/columns/route.ts`
 - Produces: Modal UI for selecting data source, axes, aggregation, filters
 
 - [ ] **Step 1: Write the CardConfigModal component**
 
 Write to `src/components/dashboard/CardConfigModal.tsx`:
+
 ```tsx
 "use client";
 import { useState, useEffect } from "react";
 import { useDashboardStore } from "@/store/dashboard-store";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import type { CardConfig, TableName, AggregationType } from "@/lib/types";
 import type { ColumnInfo } from "@/app/api/columns/route";
 
-interface Props { cardId: string; onClose: () => void; }
+interface Props {
+  cardId: string;
+  onClose: () => void;
+}
 
-const TABLE_NAMES: TableName[] = ["energy_consumption", "hvac_performance", "occupancy", "alerts_events"];
+const TABLE_NAMES: TableName[] = [
+  "energy_consumption",
+  "hvac_performance",
+  "occupancy",
+  "alerts_events",
+];
 const AGGREGATIONS: { value: AggregationType; label: string }[] = [
-  { value: "sum", label: "Sum" }, { value: "avg", label: "Average" },
-  { value: "min", label: "Minimum" }, { value: "max", label: "Maximum" }, { value: "count", label: "Count" },
+  { value: "sum", label: "Sum" },
+  { value: "avg", label: "Average" },
+  { value: "min", label: "Minimum" },
+  { value: "max", label: "Maximum" },
+  { value: "count", label: "Count" },
 ];
 
 export default function CardConfigModal({ cardId, onClose }: Props) {
@@ -1994,10 +2290,14 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
   const [columns, setColumns] = useState<ColumnInfo[]>([]);
   const [loadingCols, setLoadingCols] = useState(false);
   const [editTitle, setEditTitle] = useState(card?.config.title ?? "");
-  const [editDataSource, setEditDataSource] = useState<TableName | "">(card?.config.dataSource ?? "");
+  const [editDataSource, setEditDataSource] = useState<TableName | "">(
+    card?.config.dataSource ?? "",
+  );
   const [xAxis, setXAxis] = useState(card?.config.xAxis?.field ?? "");
   const [yAxis, setYAxis] = useState(card?.config.yAxis?.field ?? "");
-  const [aggregation, setAggregation] = useState<AggregationType>(card?.config.aggregation ?? "sum");
+  const [aggregation, setAggregation] = useState<AggregationType>(
+    card?.config.aggregation ?? "sum",
+  );
   const [groupBy, setGroupBy] = useState(card?.config.groupBy?.field ?? "");
   const [filterField, setFilterField] = useState("");
   const [filterOp, setFilterOp] = useState("eq");
@@ -2008,7 +2308,10 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
   const config = card?.config;
 
   useEffect(() => {
-    if (!editDataSource) { setColumns([]); return; }
+    if (!editDataSource) {
+      setColumns([]);
+      return;
+    }
     setLoadingCols(true);
     fetch(`/api/columns?source=${editDataSource}`)
       .then((res) => res.json())
@@ -2020,14 +2323,21 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
   function handleSave() {
     if (!config) return;
     const updates: Partial<CardConfig> = {
-      title: editTitle, dataSource: (editDataSource || null) as TableName | null,
+      title: editTitle,
+      dataSource: (editDataSource || null) as TableName | null,
       xAxis: xAxis ? { field: xAxis, label: xAxis } : null,
       yAxis: yAxis ? { field: yAxis, label: yAxis } : null,
-      aggregation, groupBy: groupBy ? { field: groupBy, label: groupBy } : null,
-      filter: (filterField && filterVal) ? { field: filterField, operator: filterOp as any, value: filterVal } : null,
+      aggregation,
+      groupBy: groupBy ? { field: groupBy, label: groupBy } : null,
+      filter:
+        filterField && filterVal
+          ? { field: filterField, operator: filterOp as any, value: filterVal }
+          : null,
     };
     if (config.type === "gauge") {
-      updates.gaugeMin = gaugeMin; updates.gaugeMax = gaugeMax; updates.gaugeTarget = gaugeTarget;
+      updates.gaugeMin = gaugeMin;
+      updates.gaugeMax = gaugeMax;
+      updates.gaugeTarget = gaugeTarget;
     }
     updateCardConfig(cardId, updates);
     onClose();
@@ -2042,22 +2352,32 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Configure {config.type.charAt(0).toUpperCase() + config.type.slice(1)} Card</DialogTitle>
+          <DialogTitle>
+            Configure {config.type.charAt(0).toUpperCase() + config.type.slice(1)} Card
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="cardTitle">Card Title</Label>
-            <Input id="cardTitle" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+            <Input
+              id="cardTitle"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+            />
           </div>
 
           <div className="grid gap-2">
             <Label>Data Source</Label>
             <Select value={editDataSource} onValueChange={(v) => setEditDataSource(v as TableName)}>
-              <SelectTrigger><SelectValue placeholder="Select source" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Select source" />
+              </SelectTrigger>
               <SelectContent>
                 {TABLE_NAMES.map((name) => (
-                  <SelectItem key={name} value={name}>{name.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}</SelectItem>
+                  <SelectItem key={name} value={name}>
+                    {name.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -2068,7 +2388,9 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
               <div className="grid gap-2">
                 <Label>{config.type === "line" ? "X-Axis (Timestamp)" : "X-Axis (Category)"}</Label>
                 <Select value={xAxis} onValueChange={setXAxis}>
-                  <SelectTrigger><SelectValue placeholder="Select column" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select column" />
+                  </SelectTrigger>
                   <SelectContent>
                     {columns.map((col) => (
                       <SelectItem key={col.column_name} value={col.column_name}>
@@ -2082,10 +2404,14 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
               <div className="grid gap-2">
                 <Label>Y-Axis (Value)</Label>
                 <Select value={yAxis} onValueChange={setYAxis}>
-                  <SelectTrigger><SelectValue placeholder="Select numeric column" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select numeric column" />
+                  </SelectTrigger>
                   <SelectContent>
                     {numericColumns.map((col) => (
-                      <SelectItem key={col.column_name} value={col.column_name}>{col.column_name}</SelectItem>
+                      <SelectItem key={col.column_name} value={col.column_name}>
+                        {col.column_name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -2093,11 +2419,18 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
 
               <div className="grid gap-2">
                 <Label>Aggregation</Label>
-                <Select value={aggregation} onValueChange={(v) => setAggregation(v as AggregationType)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={aggregation}
+                  onValueChange={(v) => setAggregation(v as AggregationType)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {AGGREGATIONS.map((agg) => (
-                      <SelectItem key={agg.value} value={agg.value}>{agg.label}</SelectItem>
+                      <SelectItem key={agg.value} value={agg.value}>
+                        {agg.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -2107,10 +2440,14 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
                 <div className="grid gap-2">
                   <Label>Group By (Optional)</Label>
                   <Select value={groupBy} onValueChange={setGroupBy}>
-                    <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder="None" />
+                    </SelectTrigger>
                     <SelectContent>
                       {stringColumns.map((col) => (
-                        <SelectItem key={col.column_name} value={col.column_name}>{col.column_name}</SelectItem>
+                        <SelectItem key={col.column_name} value={col.column_name}>
+                          {col.column_name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -2121,15 +2458,27 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
                 <div className="grid grid-cols-3 gap-4">
                   <div className="grid gap-2">
                     <Label>Min</Label>
-                    <Input type="number" value={gaugeMin} onChange={(e) => setGaugeMin(parseFloat(e.target.value) || 0)} />
+                    <Input
+                      type="number"
+                      value={gaugeMin}
+                      onChange={(e) => setGaugeMin(parseFloat(e.target.value) || 0)}
+                    />
                   </div>
                   <div className="grid gap-2">
                     <Label>Max</Label>
-                    <Input type="number" value={gaugeMax} onChange={(e) => setGaugeMax(parseFloat(e.target.value) || 100)} />
+                    <Input
+                      type="number"
+                      value={gaugeMax}
+                      onChange={(e) => setGaugeMax(parseFloat(e.target.value) || 100)}
+                    />
                   </div>
                   <div className="grid gap-2">
                     <Label>Target</Label>
-                    <Input type="number" value={gaugeTarget} onChange={(e) => setGaugeTarget(parseFloat(e.target.value) || 75)} />
+                    <Input
+                      type="number"
+                      value={gaugeTarget}
+                      onChange={(e) => setGaugeTarget(parseFloat(e.target.value) || 75)}
+                    />
                   </div>
                 </div>
               )}
@@ -2138,15 +2487,21 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
                 <Label>Optional Filter</Label>
                 <div className="grid grid-cols-3 gap-2">
                   <Select value={filterField} onValueChange={setFilterField}>
-                    <SelectTrigger><SelectValue placeholder="Field" /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Field" />
+                    </SelectTrigger>
                     <SelectContent>
                       {stringColumns.map((col) => (
-                        <SelectItem key={col.column_name} value={col.column_name}>{col.column_name}</SelectItem>
+                        <SelectItem key={col.column_name} value={col.column_name}>
+                          {col.column_name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <Select value={filterOp} onValueChange={setFilterOp}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="eq">Equals</SelectItem>
                       <SelectItem value="neq">Not Equals</SelectItem>
@@ -2154,7 +2509,11 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
                       <SelectItem value="lt">Less Than</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input placeholder="Value" value={filterVal} onChange={(e) => setFilterVal(e.target.value)} />
+                  <Input
+                    placeholder="Value"
+                    value={filterVal}
+                    onChange={(e) => setFilterVal(e.target.value)}
+                  />
                 </div>
               </div>
             </>
@@ -2162,7 +2521,9 @@ export default function CardConfigModal({ cardId, onClose }: Props) {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
@@ -2191,6 +2552,7 @@ git commit -m "feat(dashboard): add card config modal with dynamic axis selectio
 ### Task 13: KPI Card Component + UI Primitives
 
 **Files:**
+
 - Create: `src/components/cards/KPICard.tsx`
 - Create: `src/components/ui/LoadingState.tsx`
 - Create: `src/components/ui/ErrorState.tsx`
@@ -2198,12 +2560,14 @@ git commit -m "feat(dashboard): add card config modal with dynamic axis selectio
 - Test: none (visual)
 
 **Interfaces:**
+
 - Consumes: `CardConfig`, `GlobalFilters`; `POST /api/query` response
 - Produces: React component that fetches and displays a single aggregated value
 
 - [ ] **Step 1: Write LoadingState component with shadcn Skeleton**
 
 Write to `src/components/ui/LoadingState.tsx`:
+
 ```tsx
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -2222,10 +2586,14 @@ export default function LoadingState() {
 - [ ] **Step 2: Write ErrorState component**
 
 Write to `src/components/ui/ErrorState.tsx`:
+
 ```tsx
 import { Button } from "@/components/ui/button";
 
-interface Props { message: string; onRetry?: () => void; }
+interface Props {
+  message: string;
+  onRetry?: () => void;
+}
 
 export default function ErrorState({ message, onRetry }: Props) {
   return (
@@ -2244,8 +2612,11 @@ export default function ErrorState({ message, onRetry }: Props) {
 - [ ] **Step 3: Write EmptyState component**
 
 Write to `src/components/ui/EmptyState.tsx`:
+
 ```tsx
-interface Props { message?: string; }
+interface Props {
+  message?: string;
+}
 
 export default function EmptyState({ message = "No data available" }: Props) {
   return (
@@ -2259,6 +2630,7 @@ export default function EmptyState({ message = "No data available" }: Props) {
 - [ ] **Step 4: Write KPICard component**
 
 Write to `src/components/cards/KPICard.tsx`:
+
 ```tsx
 "use client";
 import { useQuery } from "@tanstack/react-query";
@@ -2267,7 +2639,9 @@ import type { CardConfig, QueryResult } from "@/lib/types";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 
-interface Props { config: CardConfig; }
+interface Props {
+  config: CardConfig;
+}
 
 export default function KPICard({ config }: Props) {
   const filters = useDashboardStore((s) => s.filters);
@@ -2276,7 +2650,8 @@ export default function KPICard({ config }: Props) {
     queryKey: ["kpi", config, filters],
     queryFn: async () => {
       const res = await fetch("/api/query", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ config, globalFilters: filters }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -2289,15 +2664,19 @@ export default function KPICard({ config }: Props) {
   if (error) return <ErrorState message={(error as Error).message} onRetry={() => refetch()} />;
   if (!data) return null;
 
-  const displayValue = data.aggregated !== null && data.aggregated !== undefined
-    ? data.aggregated.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "—";
+  const displayValue =
+    data.aggregated !== null && data.aggregated !== undefined
+      ? data.aggregated.toLocaleString(undefined, { maximumFractionDigits: 2 })
+      : "—";
   const label = config.yAxis?.label ?? "Value";
   const unit = config.dataSource === "energy_consumption" ? "kWh" : "";
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
       <span className="text-4xl font-bold">{displayValue}</span>
-      <span className="text-sm text-muted-foreground mt-1">{label} {unit && `(${unit})`}</span>
+      <span className="text-sm text-muted-foreground mt-1">
+        {label} {unit && `(${unit})`}
+      </span>
       <span className="text-xs text-muted-foreground/60 mt-1 capitalize">{config.aggregation}</span>
     </div>
   );
@@ -2324,16 +2703,19 @@ git commit -m "feat(cards): add KPI card component with data fetching and UI pri
 ### Task 14: Bar Chart Card Component
 
 **Files:**
+
 - Create: `src/components/cards/BarChartCard.tsx`
 - Modify: `src/components/dashboard/DashboardCard.tsx` (wire BarChartCard)
 
 **Interfaces:**
+
 - Consumes: `CardConfig`, `GlobalFilters`; `POST /api/query`
 - Produces: Recharts `BarChart` component
 
 - [ ] **Step 1: Write BarChartCard component**
 
 Write to `src/components/cards/BarChartCard.tsx`:
+
 ```tsx
 "use client";
 import { useQuery } from "@tanstack/react-query";
@@ -2343,7 +2725,9 @@ import type { CardConfig } from "@/lib/types";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 
-interface Props { config: CardConfig; }
+interface Props {
+  config: CardConfig;
+}
 
 export default function BarChartCard({ config }: Props) {
   const filters = useDashboardStore((s) => s.filters);
@@ -2352,7 +2736,8 @@ export default function BarChartCard({ config }: Props) {
     queryKey: ["bar", config, filters],
     queryFn: async () => {
       const res = await fetch("/api/query", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ config, globalFilters: filters }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -2363,7 +2748,8 @@ export default function BarChartCard({ config }: Props) {
 
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState message={(error as Error).message} onRetry={() => refetch()} />;
-  if (data.length === 0) return <p className="text-sm text-gray-400 italic text-center mt-8">No data</p>;
+  if (data.length === 0)
+    return <p className="text-sm text-gray-400 italic text-center mt-8">No data</p>;
 
   const xField = config.xAxis.field;
   const yField = config.yAxis.field;
@@ -2385,13 +2771,17 @@ export default function BarChartCard({ config }: Props) {
 - [ ] **Step 2: Wire BarChartCard into DashboardCard**
 
 Read and edit `src/components/dashboard/DashboardCard.tsx`. Add import:
+
 ```tsx
 import BarChartCard from "@/components/cards/BarChartCard";
 ```
 
 Replace the placeholder:
+
 ```tsx
-{card.config.type === "bar" && <BarChartCard config={card.config} />}
+{
+  card.config.type === "bar" && <BarChartCard config={card.config} />;
+}
 ```
 
 - [ ] **Step 3: Verify compilation**
@@ -2414,27 +2804,42 @@ git commit -m "feat(cards): add BarChart card component with Recharts"
 ### Task 15: Line Chart Card Component
 
 **Files:**
+
 - Create: `src/components/cards/LineChartCard.tsx`
 - Modify: `src/components/dashboard/DashboardCard.tsx` (wire LineChartCard)
 
 **Interfaces:**
+
 - Consumes: `CardConfig`, `GlobalFilters`; `POST /api/query`
 - Produces: Recharts `LineChart` component with optional group-by series
 
 - [ ] **Step 1: Write LineChartCard component**
 
 Write to `src/components/cards/LineChartCard.tsx`:
+
 ```tsx
 "use client";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  ReferenceLine,
+} from "recharts";
 import { useDashboardStore } from "@/store/dashboard-store";
 import type { CardConfig } from "@/lib/types";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 
-interface Props { config: CardConfig; }
+interface Props {
+  config: CardConfig;
+}
 
 const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899"];
 
@@ -2455,7 +2860,8 @@ export default function LineChartCardComponent({ config }: Props) {
     queryKey: ["line", config, filters],
     queryFn: async () => {
       const res = await fetch("/api/query", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ config, globalFilters: filters }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -2468,7 +2874,8 @@ export default function LineChartCardComponent({ config }: Props) {
 
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState message={(error as Error).message} onRetry={() => refetch()} />;
-  if (chartData.length === 0) return <p className="text-sm text-muted-foreground italic text-center mt-8">No data</p>;
+  if (chartData.length === 0)
+    return <p className="text-sm text-muted-foreground italic text-center mt-8">No data</p>;
 
   const xField = config.xAxis.field;
   const yField = config.yAxis.field;
@@ -2487,13 +2894,14 @@ export default function LineChartCardComponent({ config }: Props) {
     });
 
     // Find closest data point for group: take first group's timestamp
-    const closestGroupPoint = groupedData.length > 0
-      ? groupedData.reduce((prev, curr) => {
-          const pDiff = Math.abs(new Date(String(prev[xField])).getTime() - nowMs);
-          const cDiff = Math.abs(new Date(String(curr[xField])).getTime() - nowMs);
-          return cDiff < pDiff ? curr : prev;
-        }, groupedData[0])
-      : null;
+    const closestGroupPoint =
+      groupedData.length > 0
+        ? groupedData.reduce((prev, curr) => {
+            const pDiff = Math.abs(new Date(String(prev[xField])).getTime() - nowMs);
+            const cDiff = Math.abs(new Date(String(curr[xField])).getTime() - nowMs);
+            return cDiff < pDiff ? curr : prev;
+          }, groupedData[0])
+        : null;
 
     return (
       <div className="flex flex-col h-full">
@@ -2507,16 +2915,26 @@ export default function LineChartCardComponent({ config }: Props) {
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey={xField} tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip /><Legend />
+              <Tooltip />
+              <Legend />
               {closestGroupPoint && (
                 <ReferenceLine
                   x={String(closestGroupPoint[xField])}
-                  stroke="#ef4444" strokeDasharray="4 2" strokeWidth={1.5}
+                  stroke="#ef4444"
+                  strokeDasharray="4 2"
+                  strokeWidth={1.5}
                   label={{ value: "● now", position: "top", fontSize: 10, fill: "#ef4444" }}
                 />
               )}
               {groups.map((group, i) => (
-                <Line key={group} type="monotone" dataKey={String(group)} stroke={COLORS[i % COLORS.length]} strokeWidth={2} dot={{ r: 2 }} />
+                <Line
+                  key={group}
+                  type="monotone"
+                  dataKey={String(group)}
+                  stroke={COLORS[i % COLORS.length]}
+                  strokeWidth={2}
+                  dot={{ r: 2 }}
+                />
               ))}
             </LineChart>
           </ResponsiveContainer>
@@ -2527,13 +2945,14 @@ export default function LineChartCardComponent({ config }: Props) {
 
   // Find data point closest to current time for the reference line
   const nowMs = now.getTime();
-  const closestPoint = chartData.length > 0
-    ? chartData.reduce((prev, curr) => {
-        const prevDiff = Math.abs(new Date(String(prev[xField])).getTime() - nowMs);
-        const currDiff = Math.abs(new Date(String(curr[xField])).getTime() - nowMs);
-        return currDiff < prevDiff ? curr : prev;
-      }, chartData[0])
-    : null;
+  const closestPoint =
+    chartData.length > 0
+      ? chartData.reduce((prev, curr) => {
+          const prevDiff = Math.abs(new Date(String(prev[xField])).getTime() - nowMs);
+          const currDiff = Math.abs(new Date(String(curr[xField])).getTime() - nowMs);
+          return currDiff < prevDiff ? curr : prev;
+        }, chartData[0])
+      : null;
 
   return (
     <div className="flex flex-col h-full">
@@ -2558,7 +2977,13 @@ export default function LineChartCardComponent({ config }: Props) {
                 label={{ value: "● now", position: "top", fontSize: 10, fill: "#ef4444" }}
               />
             )}
-            <Line type="monotone" dataKey={yField} stroke="#3b82f6" strokeWidth={2} dot={{ r: 2 }} />
+            <Line
+              type="monotone"
+              dataKey={yField}
+              stroke="#3b82f6"
+              strokeWidth={2}
+              dot={{ r: 2 }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -2570,13 +2995,17 @@ export default function LineChartCardComponent({ config }: Props) {
 - [ ] **Step 2: Wire LineChartCard into DashboardCard**
 
 Read and edit `src/components/dashboard/DashboardCard.tsx`. Add import:
+
 ```tsx
 import LineChartCardComponent from "@/components/cards/LineChartCard";
 ```
 
 Replace the placeholder:
+
 ```tsx
-{card.config.type === "line" && <LineChartCardComponent config={card.config} />}
+{
+  card.config.type === "line" && <LineChartCardComponent config={card.config} />;
+}
 ```
 
 - [ ] **Step 3: Verify compilation**
@@ -2599,16 +3028,19 @@ git commit -m "feat(cards): add LineChart card component with group-by support"
 ### Task 16: Gauge Chart Card Component
 
 **Files:**
+
 - Create: `src/components/cards/GaugeCard.tsx`
 - Modify: `src/components/dashboard/DashboardCard.tsx` (wire GaugeCard)
 
 **Interfaces:**
+
 - Consumes: `CardConfig`, `GlobalFilters`; `POST /api/query`
 - Produces: Custom SVG gauge component
 
 - [ ] **Step 1: Write GaugeCard component**
 
 Write to `src/components/cards/GaugeCard.tsx`:
+
 ```tsx
 "use client";
 import { useQuery } from "@tanstack/react-query";
@@ -2617,8 +3049,18 @@ import type { CardConfig, QueryResult } from "@/lib/types";
 import LoadingState from "@/components/ui/LoadingState";
 import ErrorState from "@/components/ui/ErrorState";
 
-function GaugeSvg({ value, min, max, target, label }: {
-  value: number; min: number; max: number; target: number; label: string;
+function GaugeSvg({
+  value,
+  min,
+  max,
+  target,
+  label,
+}: {
+  value: number;
+  min: number;
+  max: number;
+  target: number;
+  label: string;
 }) {
   const range = max - min || 1;
   const fraction = (value - min) / range;
@@ -2626,7 +3068,8 @@ function GaugeSvg({ value, min, max, target, label }: {
   const angle = clampedFraction * 180;
   const targetFraction = Math.max(0, Math.min(1, (target - min) / range)) * 180;
   const radius = 70;
-  const cx = 100, cy = 90;
+  const cx = 100,
+    cy = 90;
   const startRad = Math.PI;
   const endRad = Math.PI + (angle * Math.PI) / 180;
   const tRad = Math.PI + (targetFraction * Math.PI) / 180;
@@ -2639,17 +3082,29 @@ function GaugeSvg({ value, min, max, target, label }: {
   return (
     <div className="flex flex-col items-center">
       <svg width="200" height="130" viewBox="0 0 200 130">
-        <path d={`M ${cx - radius + 5} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius - 5} ${cy}`}
-          fill="none" stroke="#e5e7eb" strokeWidth="12" strokeLinecap="round" />
-        <path d={`M ${cx - radius + 5} ${cy} A ${radius} ${radius} 0 0 1 ${x2} ${y2}`}
-          fill="none" stroke={color} strokeWidth="12" strokeLinecap="round" />
+        <path
+          d={`M ${cx - radius + 5} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius - 5} ${cy}`}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth="12"
+          strokeLinecap="round"
+        />
+        <path
+          d={`M ${cx - radius + 5} ${cy} A ${radius} ${radius} 0 0 1 ${x2} ${y2}`}
+          fill="none"
+          stroke={color}
+          strokeWidth="12"
+          strokeLinecap="round"
+        />
         {targetFraction > 0 && targetFraction < 180 && (
           <line x1={tx} y1={ty - 8} x2={tx} y2={ty + 8} stroke="#6b7280" strokeWidth="2" />
         )}
         <text x={cx} y={cy + 25} textAnchor="middle" fontSize="24" fontWeight="bold" fill={color}>
           {value.toLocaleString(undefined, { maximumFractionDigits: 1 })}
         </text>
-        <text x={cx} y={cy + 42} textAnchor="middle" fontSize="10" fill="#9ca3af">{label}</text>
+        <text x={cx} y={cy + 42} textAnchor="middle" fontSize="10" fill="#9ca3af">
+          {label}
+        </text>
       </svg>
       <div className="flex justify-between w-full max-w-[180px] text-xs text-gray-400 -mt-2">
         <span>{min}</span>
@@ -2667,7 +3122,8 @@ export default function GaugeCard({ config }: Props) {
     queryKey: ["gauge", config, filters],
     queryFn: async () => {
       const res = await fetch("/api/query", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ config, globalFilters: filters }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -2693,13 +3149,17 @@ export default function GaugeCard({ config }: Props) {
 - [ ] **Step 2: Wire GaugeCard into DashboardCard**
 
 Read and edit `src/components/dashboard/DashboardCard.tsx`. Add import:
+
 ```tsx
 import GaugeCard from "@/components/cards/GaugeCard";
 ```
 
 Replace the placeholder:
+
 ```tsx
-{card.config.type === "gauge" && <GaugeCard config={card.config} />}
+{
+  card.config.type === "gauge" && <GaugeCard config={card.config} />;
+}
 ```
 
 - [ ] **Step 3: Verify compilation**
@@ -2720,21 +3180,28 @@ git commit -m "feat(cards): add Gauge card component with SVG arc"
 ### Task 17: Global Filters Component
 
 **Files:**
+
 - Create: `src/components/layout/GlobalFilters.tsx`
 - Test: none (visual + functional)
 
 **Interfaces:**
+
 - Consumes: `useDashboardStore` (filters + setFilters)
 - Produces: Filter bar with building select, floor select, time range picker
 
 - [ ] **Step 1: Write GlobalFilters component**
 
 Write to `src/components/layout/GlobalFilters.tsx`:
+
 ```tsx
 "use client";
 import { useDashboardStore } from "@/store/dashboard-store";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
@@ -2756,48 +3223,97 @@ export default function GlobalFilters() {
 
   return (
     <div className="flex flex-wrap items-center gap-3 px-4 py-2 border-b">
-      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mr-1">Filters</span>
+      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mr-1">
+        Filters
+      </span>
 
-      <Select value={filters.buildingId ?? ""} onValueChange={(v) => setFilters({ buildingId: v || null })}>
-        <SelectTrigger className="w-44 h-8 text-xs"><SelectValue placeholder="All Buildings" /></SelectTrigger>
+      <Select
+        value={filters.buildingId ?? ""}
+        onValueChange={(v) => setFilters({ buildingId: v || null })}
+      >
+        <SelectTrigger className="w-44 h-8 text-xs">
+          <SelectValue placeholder="All Buildings" />
+        </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Buildings</SelectItem>
-          {BUILDINGS.map((b) => (<SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>))}
+          {BUILDINGS.map((b) => (
+            <SelectItem key={b.id} value={b.id}>
+              {b.name}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
-      <Select value={filters.floor ? String(filters.floor) : ""} onValueChange={(v) => setFilters({ floor: v ? parseInt(v, 10) : null })}>
-        <SelectTrigger className="w-28 h-8 text-xs"><SelectValue placeholder="All Floors" /></SelectTrigger>
+      <Select
+        value={filters.floor ? String(filters.floor) : ""}
+        onValueChange={(v) => setFilters({ floor: v ? parseInt(v, 10) : null })}
+      >
+        <SelectTrigger className="w-28 h-8 text-xs">
+          <SelectValue placeholder="All Floors" />
+        </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Floors</SelectItem>
-          {FLOORS.map((f) => (<SelectItem key={f} value={String(f)}>Floor {f}</SelectItem>))}
+          {FLOORS.map((f) => (
+            <SelectItem key={f} value={String(f)}>
+              Floor {f}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
-      <Select value={filters.timeRange ?? ""} onValueChange={(v) => {
-        const val = v === "all" ? null : v;
-        setFilters({ timeRange: val as any, customStart: val !== "custom" ? null : filters.customStart, customEnd: val !== "custom" ? null : filters.customEnd });
-      }}>
-        <SelectTrigger className="w-36 h-8 text-xs"><SelectValue placeholder="All Time" /></SelectTrigger>
+      <Select
+        value={filters.timeRange ?? ""}
+        onValueChange={(v) => {
+          const val = v === "all" ? null : v;
+          setFilters({
+            timeRange: val as any,
+            customStart: val !== "custom" ? null : filters.customStart,
+            customEnd: val !== "custom" ? null : filters.customEnd,
+          });
+        }}
+      >
+        <SelectTrigger className="w-36 h-8 text-xs">
+          <SelectValue placeholder="All Time" />
+        </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Time</SelectItem>
-          {TIME_RANGES.map((t) => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
+          {TIME_RANGES.map((t) => (
+            <SelectItem key={t.value} value={t.value}>
+              {t.label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
       {filters.timeRange === "custom" && (
         <div className="flex items-center gap-2">
-          <Input type="date" value={filters.customStart?.split("T")[0] ?? ""}
-            onChange={(e) => setFilters({ customStart: e.target.value ? new Date(e.target.value).toISOString() : null })}
-            className="h-8 w-36 text-xs" />
+          <Input
+            type="date"
+            value={filters.customStart?.split("T")[0] ?? ""}
+            onChange={(e) =>
+              setFilters({
+                customStart: e.target.value ? new Date(e.target.value).toISOString() : null,
+              })
+            }
+            className="h-8 w-36 text-xs"
+          />
           <span className="text-muted-foreground text-xs">to</span>
-          <Input type="date" value={filters.customEnd?.split("T")[0] ?? ""}
-            onChange={(e) => setFilters({ customEnd: e.target.value ? new Date(e.target.value).toISOString() : null })}
-            className="h-8 w-36 text-xs" />
+          <Input
+            type="date"
+            value={filters.customEnd?.split("T")[0] ?? ""}
+            onChange={(e) =>
+              setFilters({
+                customEnd: e.target.value ? new Date(e.target.value).toISOString() : null,
+              })
+            }
+            className="h-8 w-36 text-xs"
+          />
         </div>
       )}
 
-      <span className="ml-auto text-xs text-muted-foreground">{cardCount} card{cardCount !== 1 ? "s" : ""}</span>
+      <span className="ml-auto text-xs text-muted-foreground">
+        {cardCount} card{cardCount !== 1 ? "s" : ""}
+      </span>
     </div>
   );
 }
@@ -2815,17 +3331,20 @@ git commit -m "feat(layout): add global filters for building, floor, and time ra
 ### Task 18: Navigation Bar + Root Layout Wiring
 
 **Files:**
+
 - Create: `src/components/layout/Navbar.tsx`
 - Modify: `src/app/layout.tsx` (add Navbar + GlobalFilters to root layout)
 - Test: none (visual)
 
 **Interfaces:**
+
 - Consumes: nothing (standalone nav component)
 - Produces: Top navigation bar with Dashboard and Floor Plan links
 
 - [ ] **Step 1: Write Navbar component**
 
 Write to `src/components/layout/Navbar.tsx`:
+
 ```tsx
 "use client";
 import Link from "next/link";
@@ -2852,16 +3371,29 @@ export default function Navbar() {
         </Link>
         <div className="flex items-center gap-1">
           <Button variant={pathname === "/" ? "secondary" : "ghost"} size="sm" asChild>
-            <Link href="/"><LayoutDashboard className="w-4 h-4 mr-1" /> Dashboard</Link>
+            <Link href="/">
+              <LayoutDashboard className="w-4 h-4 mr-1" /> Dashboard
+            </Link>
           </Button>
-          <Button variant={pathname?.startsWith("/floor-plan") ? "secondary" : "ghost"} size="sm" asChild>
-            <Link href="/floor-plan"><Map className="w-4 h-4 mr-1" /> Floor Plan</Link>
+          <Button
+            variant={pathname?.startsWith("/floor-plan") ? "secondary" : "ghost"}
+            size="sm"
+            asChild
+          >
+            <Link href="/floor-plan">
+              <Map className="w-4 h-4 mr-1" /> Floor Plan
+            </Link>
           </Button>
         </div>
       </div>
       <div className="flex items-center gap-2">
         {mounted && (
-          <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Toggle theme">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
+          >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
         )}
@@ -2874,6 +3406,7 @@ export default function Navbar() {
 - [ ] **Step 2: Update root layout**
 
 Write to `src/app/layout.tsx`:
+
 ```tsx
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
@@ -2892,7 +3425,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <QueryProvider>
             <StoreInitializer />
             <Navbar />
@@ -2909,6 +3447,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 - [ ] **Step 3: Write StoreInitializer component**
 
 Write to `src/components/layout/StoreInitializer.tsx`:
+
 ```tsx
 "use client";
 import { useEffect } from "react";
@@ -2945,6 +3484,7 @@ git commit -m "feat(layout): add navbar with theme toggle, store initializer, an
 ### Task 19: Floor Plan Page — SVG + Occupancy Overlays
 
 **Files:**
+
 - Create: `src/app/floor-plan/page.tsx`
 - Create: `src/components/floor-plan/FloorPlanSVG.tsx`
 - Create: `src/components/floor-plan/ZoneOverlay.tsx`
@@ -2952,32 +3492,66 @@ git commit -m "feat(layout): add navbar with theme toggle, store initializer, an
 - Test: none (visual)
 
 **Interfaces:**
+
 - Consumes: `GET /api/occupancy/latest?building_id=X&floor=Y`
 - Produces: SVG floor plan page with occupancy overlays, building/floor tabs, 30s auto-refresh
 
 - [ ] **Step 1: Write OccupancyTooltip component**
 
 Write to `src/components/floor-plan/OccupancyTooltip.tsx`:
+
 ```tsx
 interface ZoneData {
-  zone: string; floor: number; occupancy_rate_percent?: number; person_count?: number;
-  zone_capacity?: number; co2_ppm?: number; air_quality_index?: number; timestamp?: string;
+  zone: string;
+  floor: number;
+  occupancy_rate_percent?: number;
+  person_count?: number;
+  zone_capacity?: number;
+  co2_ppm?: number;
+  air_quality_index?: number;
+  timestamp?: string;
 }
-interface Props { data: ZoneData; x: number; y: number; }
+interface Props {
+  data: ZoneData;
+  x: number;
+  y: number;
+}
 
 export default function OccupancyTooltip({ data, x, y }: Props) {
   return (
-    <div className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-sm pointer-events-none"
-      style={{ left: x + 12, top: y - 10 }}>
+    <div
+      className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-sm pointer-events-none"
+      style={{ left: x + 12, top: y - 10 }}
+    >
       <p className="font-semibold text-gray-800 mb-1">{data.zone}</p>
       <table className="text-xs text-gray-600">
         <tbody>
-          <tr><td className="pr-3">Floor:</td><td>{data.floor}</td></tr>
-          <tr><td className="pr-3">Occupancy:</td><td>{data.occupancy_rate_percent?.toFixed(1) ?? "—"}%</td></tr>
-          <tr><td className="pr-3">People:</td><td>{data.person_count ?? "—"} / {data.zone_capacity ?? "—"}</td></tr>
-          <tr><td className="pr-3">CO2:</td><td>{data.co2_ppm ?? "—"} ppm</td></tr>
-          <tr><td className="pr-3">AQI:</td><td>{data.air_quality_index ?? "—"}</td></tr>
-          <tr><td className="pr-3">Updated:</td><td>{data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : "—"}</td></tr>
+          <tr>
+            <td className="pr-3">Floor:</td>
+            <td>{data.floor}</td>
+          </tr>
+          <tr>
+            <td className="pr-3">Occupancy:</td>
+            <td>{data.occupancy_rate_percent?.toFixed(1) ?? "—"}%</td>
+          </tr>
+          <tr>
+            <td className="pr-3">People:</td>
+            <td>
+              {data.person_count ?? "—"} / {data.zone_capacity ?? "—"}
+            </td>
+          </tr>
+          <tr>
+            <td className="pr-3">CO2:</td>
+            <td>{data.co2_ppm ?? "—"} ppm</td>
+          </tr>
+          <tr>
+            <td className="pr-3">AQI:</td>
+            <td>{data.air_quality_index ?? "—"}</td>
+          </tr>
+          <tr>
+            <td className="pr-3">Updated:</td>
+            <td>{data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : "—"}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -2988,13 +3562,30 @@ export default function OccupancyTooltip({ data, x, y }: Props) {
 - [ ] **Step 2: Write ZoneOverlay component**
 
 Write to `src/components/floor-plan/ZoneOverlay.tsx`:
+
 ```tsx
 "use client";
 import { useState } from "react";
 import OccupancyTooltip from "./OccupancyTooltip";
 
-interface ZoneData { zone: string; floor: number; occupancy_rate_percent?: number; person_count?: number; zone_capacity?: number; co2_ppm?: number; air_quality_index?: number; timestamp?: string; }
-interface Props { zoneData: ZoneData; x: number; y: number; width: number; height: number; label: string; }
+interface ZoneData {
+  zone: string;
+  floor: number;
+  occupancy_rate_percent?: number;
+  person_count?: number;
+  zone_capacity?: number;
+  co2_ppm?: number;
+  air_quality_index?: number;
+  timestamp?: string;
+}
+interface Props {
+  zoneData: ZoneData;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  label: string;
+}
 
 function getOccupancyColor(rate?: number): string {
   if (rate === undefined || rate === null) return "#9ca3af";
@@ -3009,24 +3600,78 @@ function isStale(timestamp?: string): boolean {
 }
 
 export default function ZoneOverlay({ zoneData, x, y, width, height, label }: Props) {
-  const [tooltip, setTooltip] = useState<{ show: boolean; pageX: number; pageY: number }>({ show: false, pageX: 0, pageY: 0 });
+  const [tooltip, setTooltip] = useState<{ show: boolean; pageX: number; pageY: number }>({
+    show: false,
+    pageX: 0,
+    pageY: 0,
+  });
   const stale = isStale(zoneData.timestamp);
   const fillColor = stale ? "#d1d5db" : getOccupancyColor(zoneData.occupancy_rate_percent);
   const personCount = zoneData.person_count ?? 0;
 
   return (
-    <g onMouseMove={(e) => setTooltip({ show: true, pageX: e.pageX, pageY: e.pageY })}
-      onMouseLeave={() => setTooltip({ show: false, pageX: 0, pageY: 0 })} style={{ cursor: "pointer" }}>
-      <rect x={x} y={y} width={width} height={height} rx={6}
-        fill={fillColor} fillOpacity={stale ? 0.3 : 0.6}
-        stroke={stale ? "#9ca3af" : fillColor} strokeWidth={2} />
-      {stale && <text x={x + width / 2} y={y + height / 2 - 4} textAnchor="middle" fontSize="11" fill="#6b7280">No data</text>}
-      <text x={x + width / 2} y={y + (stale ? height / 2 + 12 : height / 2 - 4)}
-        textAnchor="middle" fontSize="13" fontWeight="bold" fill={stale ? "#9ca3af" : "#1f2937"}>{label}</text>
-      {!stale && <text x={x + width / 2} y={y + height / 2 + 14} textAnchor="middle" fontSize="11" fill="#4b5563">{personCount} people</text>}
+    <g
+      onMouseMove={(e) => setTooltip({ show: true, pageX: e.pageX, pageY: e.pageY })}
+      onMouseLeave={() => setTooltip({ show: false, pageX: 0, pageY: 0 })}
+      style={{ cursor: "pointer" }}
+    >
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        rx={6}
+        fill={fillColor}
+        fillOpacity={stale ? 0.3 : 0.6}
+        stroke={stale ? "#9ca3af" : fillColor}
+        strokeWidth={2}
+      />
+      {stale && (
+        <text
+          x={x + width / 2}
+          y={y + height / 2 - 4}
+          textAnchor="middle"
+          fontSize="11"
+          fill="#6b7280"
+        >
+          No data
+        </text>
+      )}
+      <text
+        x={x + width / 2}
+        y={y + (stale ? height / 2 + 12 : height / 2 - 4)}
+        textAnchor="middle"
+        fontSize="13"
+        fontWeight="bold"
+        fill={stale ? "#9ca3af" : "#1f2937"}
+      >
+        {label}
+      </text>
+      {!stale && (
+        <text
+          x={x + width / 2}
+          y={y + height / 2 + 14}
+          textAnchor="middle"
+          fontSize="11"
+          fill="#4b5563"
+        >
+          {personCount} people
+        </text>
+      )}
       {tooltip.show && zoneData.occupancy_rate_percent !== undefined && (
-        <foreignObject x={0} y={0} width="100%" height="100%" overflow="visible" pointerEvents="none">
-          <OccupancyTooltip data={zoneData} x={tooltip.pageX - x - 250} y={tooltip.pageY - y - 100} />
+        <foreignObject
+          x={0}
+          y={0}
+          width="100%"
+          height="100%"
+          overflow="visible"
+          pointerEvents="none"
+        >
+          <OccupancyTooltip
+            data={zoneData}
+            x={tooltip.pageX - x - 250}
+            y={tooltip.pageY - y - 100}
+          />
         </foreignObject>
       )}
     </g>
@@ -3037,12 +3682,26 @@ export default function ZoneOverlay({ zoneData, x, y, width, height, label }: Pr
 - [ ] **Step 3: Write FloorPlanSVG component**
 
 Write to `src/components/floor-plan/FloorPlanSVG.tsx`:
+
 ```tsx
 "use client";
 import ZoneOverlay from "./ZoneOverlay";
 
-interface ZoneData { zone: string; floor: number; occupancy_rate_percent?: number; person_count?: number; zone_capacity?: number; co2_ppm?: number; air_quality_index?: number; timestamp?: string; }
-interface Props { zones: ZoneData[]; buildingId: string; floor: number; }
+interface ZoneData {
+  zone: string;
+  floor: number;
+  occupancy_rate_percent?: number;
+  person_count?: number;
+  zone_capacity?: number;
+  co2_ppm?: number;
+  air_quality_index?: number;
+  timestamp?: string;
+}
+interface Props {
+  zones: ZoneData[];
+  buildingId: string;
+  floor: number;
+}
 
 export default function FloorPlanSVG({ zones, buildingId, floor }: Props) {
   const zoneMap = new Map<string, ZoneData>();
@@ -3055,24 +3714,61 @@ export default function FloorPlanSVG({ zones, buildingId, floor }: Props) {
   ];
 
   return (
-    <svg width="100%" height="100%" viewBox="0 0 600 420" className="bg-gray-50 rounded-lg border border-gray-200">
-      <rect x={10} y={10} width={580} height={400} rx={8} fill="none" stroke="#d1d5db" strokeWidth={2} />
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 600 420"
+      className="bg-gray-50 rounded-lg border border-gray-200"
+    >
+      <rect
+        x={10}
+        y={10}
+        width={580}
+        height={400}
+        rx={8}
+        fill="none"
+        stroke="#d1d5db"
+        strokeWidth={2}
+      />
       <rect x={365} y={15} width={8} height={390} fill="#e5e7eb" rx={2} />
-      <text x={20} y={405} fontSize="10" fill="#9ca3af">{buildingId} — Floor {floor}</text>
+      <text x={20} y={405} fontSize="10" fill="#9ca3af">
+        {buildingId} — Floor {floor}
+      </text>
       <rect x={480} y={395} width={10} height={10} fill="#22c55e" rx={2} />
-      <text x={494} y={404} fontSize="9" fill="#6b7280">&lt;40%</text>
+      <text x={494} y={404} fontSize="9" fill="#6b7280">
+        &lt;40%
+      </text>
       <rect x={530} y={395} width={10} height={10} fill="#f59e0b" rx={2} />
-      <text x={544} y={404} fontSize="9" fill="#6b7280">40-75%</text>
+      <text x={544} y={404} fontSize="9" fill="#6b7280">
+        40-75%
+      </text>
       <rect x={565} y={395} width={10} height={10} fill="#ef4444" rx={2} />
-      <text x={579} y={404} fontSize="9" fill="#6b7280">&gt;75%</text>
+      <text x={579} y={404} fontSize="9" fill="#6b7280">
+        &gt;75%
+      </text>
 
       {zoneLayouts.map((layout) => {
         const zoneData = zoneMap.get(layout.zone) ?? {
-          zone: layout.zone, floor, occupancy_rate_percent: undefined, person_count: undefined,
-          zone_capacity: undefined, co2_ppm: undefined, air_quality_index: undefined, timestamp: undefined,
+          zone: layout.zone,
+          floor,
+          occupancy_rate_percent: undefined,
+          person_count: undefined,
+          zone_capacity: undefined,
+          co2_ppm: undefined,
+          air_quality_index: undefined,
+          timestamp: undefined,
         };
-        return <ZoneOverlay key={layout.zone} zoneData={zoneData} x={layout.x} y={layout.y}
-          width={layout.width} height={layout.height} label={layout.label} />;
+        return (
+          <ZoneOverlay
+            key={layout.zone}
+            zoneData={zoneData}
+            x={layout.x}
+            y={layout.y}
+            width={layout.width}
+            height={layout.height}
+            label={layout.label}
+          />
+        );
       })}
     </svg>
   );
@@ -3082,6 +3778,7 @@ export default function FloorPlanSVG({ zones, buildingId, floor }: Props) {
 - [ ] **Step 4: Write the floor plan page**
 
 Write to `src/app/floor-plan/page.tsx`:
+
 ```tsx
 "use client";
 import { useState } from "react";
@@ -3101,7 +3798,9 @@ export default function FloorPlanPage() {
   const { data, isLoading, dataUpdatedAt } = useQuery({
     queryKey: ["occupancy", selected.buildingId, selected.floor],
     queryFn: async () => {
-      const res = await fetch(`/api/occupancy/latest?building_id=${selected.buildingId}&floor=${selected.floor}`);
+      const res = await fetch(
+        `/api/occupancy/latest?building_id=${selected.buildingId}&floor=${selected.floor}`,
+      );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     },
@@ -3116,11 +3815,17 @@ export default function FloorPlanPage() {
 
       <div className="flex gap-1 mb-4 bg-gray-100 rounded-lg p-1 w-fit">
         {BUILDING_FLOORS.map((bf) => (
-          <button key={`${bf.buildingId}-${bf.floor}`} onClick={() => setSelected(bf)}
+          <button
+            key={`${bf.buildingId}-${bf.floor}`}
+            onClick={() => setSelected(bf)}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               selected.buildingId === bf.buildingId && selected.floor === bf.floor
-                ? "bg-white text-blue-700 shadow-sm" : "text-gray-600 hover:text-gray-800"
-            }`}>{bf.label}</button>
+                ? "bg-white text-blue-700 shadow-sm"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            {bf.label}
+          </button>
         ))}
       </div>
 
@@ -3172,10 +3877,12 @@ git checkout -b phase/5-polish
 ### Task 20: UI Polish — Alert Severity Colors + shadcn Theme Fine-Tune
 
 **Files:**
+
 - Modify: `src/app/globals.css` (add severity CSS variables on top of shadcn)
 - Test: none (visual)
 
 **Interfaces:**
+
 - Consumes: shadcn theme variables already set by preset + `next-themes` for dark mode
 - Produces: Alert severity color scheme (Critical=red, Warning=orange, Info=blue)
 
@@ -3184,6 +3891,7 @@ git checkout -b phase/5-polish
 - [ ] **Step 1: Add severity CSS variables**
 
 Edit `src/app/globals.css` — add at the end of the file (after shadcn's `@layer base` block):
+
 ```css
 @layer base {
   :root {
@@ -3195,15 +3903,32 @@ Edit `src/app/globals.css` — add at the end of the file (after shadcn's `@laye
 
 /* Animated transitions — card add/remove */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Print/PDF export styles */
 @media print {
-  nav, .filters-bar, .card-palette, .no-print { display: none !important; }
-  body { background: white !important; }
-  .card { break-inside: avoid; border: 1px solid #ccc !important; box-shadow: none !important; }
+  nav,
+  .filters-bar,
+  .card-palette,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+  .card {
+    break-inside: avoid;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
 }
 ```
 
@@ -3227,6 +3952,7 @@ git commit -m "feat(ui): add alert severity color CSS variables (critical/warnin
 ### Task 21: Unit Tests for Core Logic
 
 **Files:**
+
 - Test: `tests/unit/aggregation.test.ts` (already created in Task 6)
 - Test: `tests/unit/query-builder.test.ts` (already created in Task 6)
 - Test: `tests/unit/dashboard-store.test.ts` (already created in Task 10)
@@ -3237,6 +3963,7 @@ git commit -m "feat(ui): add alert severity color CSS variables (critical/warnin
 - Test: none new other than line-chart-card — run all existing tests to verify they still pass
 
 **Interfaces:**
+
 - Consumes: all existing source files
 - Produces: green test suite
 
@@ -3330,12 +4057,14 @@ git commit -m "test: verify all unit tests pass for core logic modules"
 ### Task 22: Vitest Configuration Setup
 
 **Files:**
+
 - Create: `vitest.config.mts` (or add to existing config)
 - Test: none (config file, tests already run)
 
 - [ ] **Step 1: Create vitest config**
 
 Write to `vitest.config.mts`:
+
 ```typescript
 import { defineConfig } from "vitest/config";
 import path from "path";
@@ -3357,6 +4086,7 @@ export default defineConfig({
 - [ ] **Step 2: Add test script to package.json**
 
 Read `package.json`, add to `"scripts"`:
+
 ```json
 "test": "vitest run",
 "test:watch": "vitest"
@@ -3382,6 +4112,7 @@ git commit -m "chore(test): add vitest configuration and npm test script"
 ### Task 23: Documentation — README + Architecture Brief + PROMPT_HISTORY.md
 
 **Files:**
+
 - Create: `README.md`
 - Create: `ARCHITECTURE.md`
 - Create: `PROMPT_HISTORY.md`
@@ -3390,7 +4121,8 @@ git commit -m "chore(test): add vitest configuration and npm test script"
 - [ ] **Step 1: Write README.md**
 
 Write to `README.md`:
-```markdown
+
+````markdown
 # BMS Dashboard Builder
 
 A full-stack Building Management System (BMS) dashboard with a drag-and-drop card-based builder, four chart types, global filters, and an SVG floor plan occupancy view.
@@ -3414,24 +4146,29 @@ A full-stack Building Management System (BMS) dashboard with a drag-and-drop car
    ```bash
    npm install
    ```
+````
 
 2. **Configure database:**
    Edit `.env` with your SQL Server connection string:
+
    ```
    DATABASE_URL="sqlserver://localhost:1433;database=bms_dashboard;user=SA;password=YourPassword123;trustServerCertificate=true"
    ```
 
 3. **Push schema to database:**
+
    ```bash
    npx prisma db push
    ```
 
 4. **Seed data from CSVs:**
+
    ```bash
    npx prisma db seed
    ```
 
 5. **Run the development server:**
+
    ```bash
    npm run dev
    ```
@@ -3466,7 +4203,8 @@ data/               — CSV data files
 - **Floor Plan View:** SVG floor plans with color-coded occupancy overlays, hover tooltips, auto-refresh
 - **Dark Mode:** Toggle dark/light theme
 - **Persistence:** Dashboard layout saved to localStorage
-```
+
+````
 
 - [ ] **Step 2: Write ARCHITECTURE.md**
 
@@ -3526,11 +4264,12 @@ Using `@dnd-kit/core` and `@dnd-kit/sortable`:
 - Stale data (>1 hour) shows gray with "No data" text
 - Hover tooltip uses SVG `<foreignObject>` to embed HTML tooltip content
 - Auto-refresh via `setInterval(fetchOccupancy, 30000)`
-```
+````
 
 - [ ] **Step 3: Write PROMPT_HISTORY.md**
 
 Write to `PROMPT_HISTORY.md`:
+
 ```markdown
 # PROMPT_HISTORY.md
 
@@ -3566,7 +4305,8 @@ This document records the complete interaction between the developer and AI tool
 
 **Prompt:** "Build the backend API routes — columns endpoint, query endpoint, and occupancy latest endpoint."
 
-**AI Response:** 
+**AI Response:**
+
 - `GET /api/columns` — returns static column metadata per table (field name, type, is_numeric)
 - `POST /api/query` — accepts card config + global filters, builds Prisma query, returns aggregated or raw data
 - `GET /api/occupancy/latest` — fetches latest occupancy reading per zone for a building/floor combo
@@ -3576,6 +4316,7 @@ This document records the complete interaction between the developer and AI tool
 **Prompt:** "Build the frontend — zustand store, DnD canvas, card types, config modal, floor plan."
 
 **AI Response:**
+
 - Zustand store with card CRUD, filter state, localStorage persistence
 - dnd-kit canvas with sortable card grid
 - CardConfigModal with dynamic column fetching and axis mapping
@@ -3616,6 +4357,7 @@ git commit -m "docs: add README, architecture brief, and prompt history"
 ### Task 24: Final Verification — Build Check + Full Test Suite
 
 **Files:**
+
 - Test: Run full build and test suite
 - Modify: none (verification only)
 
@@ -3674,6 +4416,7 @@ git log --oneline
 ## Self-Review Checklist
 
 ### Spec Coverage
+
 - [x] Dashboard Builder (Core) — Tasks 10, 11, 12
 - [x] 4 Card Types (KPI, Bar, Line, Gauge) — Tasks 13, 14, 15, 16
 - [x] Dynamic Axis Selection — Task 12 (CardConfigModal) + Task 7 (Columns API)
@@ -3690,10 +4433,12 @@ git log --oneline
 - [x] Documentation (README, Architecture, PROMPT_HISTORY) — Task 23
 
 ### Placeholder Scan
+
 - [x] No "TBD", "TODO", "implement later", "fill in details", or "add appropriate error handling" in any code step
 - [x] Complete code in every code step — no "similar to Task N" references
 
 ### Type Consistency
+
 - [x] `CardType` = "kpi" | "bar" | "line" | "gauge" — consistent across all tasks
 - [x] `AggregationType` = "sum" | "avg" | "min" | "max" | "count" — consistent across all tasks
 - [x] `TableName` = 4 table names — consistent across schema, API, and cards

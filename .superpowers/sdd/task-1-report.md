@@ -1,13 +1,16 @@
 # Task 1 Report: Project Setup
 
 ## Status
+
 **success**
 
 ## Branch
+
 - `main` — initial commit
 - `phase/1-setup` — working branch (current)
 
 ## Build Output (last 5 lines)
+
 ```
 ✓ Generating static pages using 5 workers (4/4) in 611ms
   Finalizing page optimization ...
@@ -22,6 +25,7 @@ Route (app)
 ## Files Created / Modified
 
 ### Scaffolding (Next.js foundation)
+
 - `package.json` — project manifest
 - `pnpm-lock.yaml` — dependency lock
 - `tsconfig.json` — TypeScript config with `@/*` alias
@@ -36,6 +40,7 @@ Route (app)
 - `.env` — Environment template
 
 ### shadcn/ui components
+
 - `components.json` — shadcn config
 - `src/components/ui/button.tsx`
 - `src/components/ui/card.tsx`
@@ -50,12 +55,14 @@ Route (app)
 - `src/lib/utils.ts` — cn() utility
 
 ### Custom files
+
 - `src/components/layout/QueryProvider.tsx` — TanStack Query provider
 - `src/components/layout/ThemeProvider.tsx` — next-themes provider
 - `prisma/schema.prisma` — Placeholder Prisma schema
 - `.superpowers/sdd/task-1-report.md` — This report
 
 ### Pre-existing (preserved)
+
 - `AGENTS.md`, `opencode.json`, `skills-lock.json`
 - `.opencode/` (agents, skills, config)
 - `.agents/` (mirrored agents)
@@ -66,28 +73,28 @@ Route (app)
 
 ## Package Versions (key)
 
-| Package | Version |
-|---------|---------|
-| next | 16.2.10 |
-| react | 19.2.4 |
-| react-dom | 19.2.4 |
-| tailwindcss | 4.x |
-| typescript | 5.x |
-| prisma | 7.8.0 |
-| @prisma/client | 7.8.0 |
-| @tanstack/react-query | 5.101.2 |
-| zustand | 5.0.14 |
-| @dnd-kit/core | 6.3.1 |
-| @dnd-kit/sortable | 10.0.0 |
-| @dnd-kit/utilities | 3.2.2 |
-| date-fns | 4.4.0 |
-| lucide-react | 1.24.0 |
-| recharts | 3.8.0 |
-| next-themes | 0.4.6 |
-| vitest | 4.1.10 |
-| oxlint | 1.74.0 |
-| oxfmt | 0.59.0 |
-| @testing-library/react | 16.3.2 |
+| Package                | Version |
+| ---------------------- | ------- |
+| next                   | 16.2.10 |
+| react                  | 19.2.4  |
+| react-dom              | 19.2.4  |
+| tailwindcss            | 4.x     |
+| typescript             | 5.x     |
+| prisma                 | 7.8.0   |
+| @prisma/client         | 7.8.0   |
+| @tanstack/react-query  | 5.101.2 |
+| zustand                | 5.0.14  |
+| @dnd-kit/core          | 6.3.1   |
+| @dnd-kit/sortable      | 10.0.0  |
+| @dnd-kit/utilities     | 3.2.2   |
+| date-fns               | 4.4.0   |
+| lucide-react           | 1.24.0  |
+| recharts               | 3.8.0   |
+| next-themes            | 0.4.6   |
+| vitest                 | 4.1.10  |
+| oxlint                 | 1.74.0  |
+| oxfmt                  | 0.59.0  |
+| @testing-library/react | 16.3.2  |
 
 ## Issues Encountered
 
@@ -97,6 +104,7 @@ Route (app)
 4. **lucide-react**: Was already installed by shadcn/ui (dependency), so explicit install was a no-op.
 
 ## Verification Checklist
+
 - [x] `pnpm run build` passes with `✓ Compiled successfully`
 - [x] `src/app/globals.css` has Tailwind directives (`@import "tailwindcss"`), shadcn CSS variables, and dark mode
 - [x] `package.json` has scripts: `lint`, `format`, `test`, `test:watch`, `prisma:*`

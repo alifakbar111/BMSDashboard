@@ -40,7 +40,7 @@ export default function RootLayout({
         "antialiased",
         geistSans.variable,
         geistMono.variable,
-        ibmPlexSansHeading.variable
+        ibmPlexSansHeading.variable,
       )}
     >
       <body className="min-h-full flex flex-col">
