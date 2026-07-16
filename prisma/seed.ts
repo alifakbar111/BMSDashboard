@@ -1,8 +1,31 @@
-import { PrismaClient } from "../src/generated/prisma";
+import { PrismaMssql } from "@prisma/adapter-mssql";
+import { PrismaClient } from "../src/generated/prisma/client";
 import * as fs from "fs";
 import * as path from "path";
 
-const prisma = new PrismaClient();
+// Parse DATABASE_URL for adapter config
+// URL format: sqlserver://host:port;database=db;user=user;password=pwd;trustServerCertificate=true
+const connectionUrl = process.env.DATABASE_URL || "sqlserver://localhost:1433;database=bms_dashboard;user=SA;password=Y0uRStrOng!P4ssw0rd;trustServerCertificate=true";
+const getParam = (url: string, key: string): string => {
+  const match = url.match(new RegExp(`${key}=([^;]+)`));
+  return match ? match[1] : "";
+};
+const serverMatch = connectionUrl.match(/sqlserver:\/\/([^:;]+)/);
+const portMatch = connectionUrl.match(/:(\d+);/);
+
+const config = {
+  server: serverMatch?.[1] ?? "localhost",
+  port: portMatch ? parseInt(portMatch[1], 10) : 1433,
+  database: getParam(connectionUrl, "database") || "bms_dashboard",
+  user: getParam(connectionUrl, "user") || "SA",
+  password: getParam(connectionUrl, "password") || "Y0uRStrOng!P4ssw0rd",
+  options: {
+    encrypt: getParam(connectionUrl, "encrypt") === "true",
+    trustServerCertificate: getParam(connectionUrl, "trustServerCertificate") !== "false",
+  },
+};
+const adapter = new PrismaMssql(config);
+const prisma = new PrismaClient({ adapter });
 
 const DATA_DIR = path.resolve(process.cwd(), "data");
 

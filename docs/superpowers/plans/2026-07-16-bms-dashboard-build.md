@@ -6,7 +6,9 @@
 
 **Architecture:** Next.js App Router monolith — backend logic lives in API Route Handlers (`src/app/api/`) that use Prisma Client to query a SQL Server database seeded from CSV files. The frontend uses zustand for state (card layout + global filters), dnd-kit for drag-and-drop canvas, and Recharts for chart rendering. Each card is configured dynamically: user selects a data source, the frontend fetches available columns, then maps axes before the backend constructs and executes a Prisma query.
 
-**Tech Stack:** Next.js 16 (App Router, TypeScript, Tailwind CSS), Prisma ORM (SQL Server), shadcn/ui (with Recharts), dnd-kit, zustand, @tanstack/react-query, date-fns, lucide-react, vitest, oxlint, oxfmt.
+**Tech Stack:** Next.js 16 (App Router, TypeScript, Tailwind CSS), Prisma 7 + `@prisma/adapter-mssql` (SQL Server), shadcn/ui (with Recharts), dnd-kit, zustand, @tanstack/react-query, date-fns, lucide-react, vitest, oxlint, oxfmt.
+
+> **Note:** Prisma 7 requires a driver adapter per database. For SQL Server we use `@prisma/adapter-mssql`. The generated client lives at `src/generated/prisma/` and PrismaClient is instantiated with `new PrismaClient({ adapter })`.
 
 ## Global Constraints
 
@@ -19,6 +21,7 @@
 - **Server state:** @tanstack/react-query for card data fetching, caching, and auto-refetch on filter changes (paired with Zustand for client state: layout + filters)
 - **Linting/Formatting:** oxlint for linting, oxfmt for formatting (Void0 toolchain alongside vitest)
 - **Dark mode:** next-themes (shadcn's built-in approach), not manual CSS toggling
+- **Prisma 7 adapter requirement**: All PrismaClient instances must use a driver adapter — SQL Server uses `@prisma/adapter-mssql` with `new PrismaClient({ adapter })`. Connection config is parsed from `DATABASE_URL` env var.
 - Backend: Next.js API Route Handlers (`src/app/api/`), no separate framework
 - 4 card types required: KPI, Bar Chart, Line Chart, Gauge Chart
 - Global filters: building_id, floor, time range — update all cards simultaneously
@@ -578,10 +581,20 @@ git commit -m "infra(prisma): add schema with 4 BMS data models"
 - Create: `prisma/seed.ts`
 - Modify: `package.json`
 
-- [ ] **Step 1: Write prisma/seed.ts**
+- [ ] **Step 1: Install Prisma 7 adapter for SQL Server**
+
+```bash
+pnpm add @prisma/adapter-mssql
+```
+
+- [ ] **Step 2: Write prisma/seed.ts**
 
 Write the seed script that reads all 4 CSV files, parses each row, and inserts into the database using Prisma Client. The script should:
 
+- Import `PrismaMssql` from `@prisma/adapter-mssql` and `PrismaClient` from `../src/generated/prisma/client`
+- Parse the `DATABASE_URL` env var to extract server, port, database, user, password
+- Create adapter: `new PrismaMssql({ server, port, database, user, password, options: { encrypt: true, trustServerCertificate: true } })`
+- Instantiate: `new PrismaClient({ adapter })`
 - Parse CSV files from `data/` directory using Node.js `fs.readFileSync` and string splitting
 - Handle timestamp -> `new Date(row.timestamp)` conversion
 - Parse integers with `parseInt(row.field, 10)` for floor, zone_capacity, person_count, etc.
@@ -591,15 +604,7 @@ Write the seed script that reads all 4 CSV files, parses each row, and inserts i
 - Log progress and row counts after each table
 - Wrap in try/catch with `prisma.$disconnect()` in finally block
 
-The full implementation (~150 lines) covers all 4 models with exact field mappings matching the Prisma schema from Task 3.
-
-- [ ] **Step 2: Add prisma.seed to package.json**
-
-```json
-"prisma": {
-  "seed": "npx tsx prisma/seed.ts"
-}
-```
+The full implementation (~210 lines) covers all 4 models with exact field mappings matching the Prisma schema from Task 3.
 
 - [ ] **Step 3: Verify compilation**
 
