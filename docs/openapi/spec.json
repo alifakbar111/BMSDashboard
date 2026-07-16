@@ -1,0 +1,763 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BMS Dashboard API",
+    "version": "1.0.0",
+    "description": "REST API for the Building Management System Dashboard — provides column metadata, dynamic data queries with aggregation, and real-time occupancy data for floor plan visualization."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development"
+    }
+  ],
+  "paths": {
+    "/api/columns": {
+      "get": {
+        "summary": "Get column metadata for a data source",
+        "description": "Returns all columns (name, type, numeric flag) for a given BMS data source. Used by the frontend to populate axis selection dropdowns.",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "energy_consumption",
+                "hvac_performance",
+                "occupancy",
+                "alerts_events"
+              ]
+            },
+            "description": "The data source table name",
+            "example": "energy_consumption"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Column metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "columns": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ColumnInfo"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "columns": [
+                    {
+                      "column_name": "timestamp",
+                      "data_type": "datetime",
+                      "is_numeric": false
+                    },
+                    {
+                      "column_name": "energy_kwh",
+                      "data_type": "float",
+                      "is_numeric": true
+                    },
+                    {
+                      "column_name": "zone",
+                      "data_type": "string",
+                      "is_numeric": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing source parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Missing 'source' query parameter"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown data source",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Unknown data source: invalid_source"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/query": {
+      "post": {
+        "summary": "Execute a dynamic card data query",
+        "description": "Accepts a card configuration and global filter state, constructs a Prisma query, executes it, and returns aggregated values (for KPI/Gauge cards) or raw data (for Bar/Line cards).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "config",
+                  "globalFilters"
+                ],
+                "properties": {
+                  "config": {
+                    "$ref": "#/components/schemas/CardConfig"
+                  },
+                  "globalFilters": {
+                    "$ref": "#/components/schemas/GlobalFilters"
+                  }
+                }
+              },
+              "example": {
+                "config": {
+                  "id": "card-1",
+                  "type": "bar",
+                  "title": "Energy by Zone",
+                  "dataSource": "energy_consumption",
+                  "xAxis": {
+                    "field": "zone",
+                    "label": "Zone"
+                  },
+                  "yAxis": {
+                    "field": "energy_kwh",
+                    "label": "Energy (kWh)"
+                  },
+                  "aggregation": "sum",
+                  "groupBy": null,
+                  "filter": null
+                },
+                "globalFilters": {
+                  "buildingId": null,
+                  "floor": null,
+                  "timeRange": null,
+                  "customStart": null,
+                  "customEnd": null
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Query results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResult"
+                },
+                "examples": {
+                  "aggregated": {
+                    "summary": "KPI/Gauge result",
+                    "value": {
+                      "data": [
+                        {
+                          "energyKwh": 150
+                        }
+                      ],
+                      "aggregated": 150
+                    }
+                  },
+                  "raw": {
+                    "summary": "Bar/Line result",
+                    "value": {
+                      "data": [
+                        {
+                          "zone": "Zone-A",
+                          "energyKwh": 150
+                        },
+                        {
+                          "zone": "Zone-B",
+                          "energyKwh": 220
+                        }
+                      ],
+                      "aggregated": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Query execution error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/occupancy/latest": {
+      "get": {
+        "summary": "Get latest occupancy readings per zone",
+        "description": "Returns the most recent occupancy data for each zone in a building floor. Used by the floor plan SVG overlay to color-code zones.",
+        "parameters": [
+          {
+            "name": "building_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Building identifier",
+            "example": "BLD-001"
+          },
+          {
+            "name": "floor",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Floor number",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Latest occupancy per zone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "buildingId": {
+                      "type": "string"
+                    },
+                    "floor": {
+                      "type": "integer"
+                    },
+                    "zones": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "zone": {
+                            "type": "string"
+                          },
+                          "zoneCapacity": {
+                            "type": "integer"
+                          },
+                          "personCount": {
+                            "type": "integer"
+                          },
+                          "occupancyRatePercent": {
+                            "type": "number"
+                          },
+                          "co2Ppm": {
+                            "type": "integer"
+                          },
+                          "temperatureC": {
+                            "type": "number"
+                          },
+                          "humidityPercent": {
+                            "type": "number"
+                          },
+                          "airQualityIndex": {
+                            "type": "integer"
+                          },
+                          "entryCount": {
+                            "type": "integer"
+                          },
+                          "exitCount": {
+                            "type": "integer"
+                          },
+                          "timestamp": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                },
+                "example": {
+                  "buildingId": "BLD-001",
+                  "floor": 1,
+                  "zones": [
+                    {
+                      "zone": "Zone-A",
+                      "zoneCapacity": 150,
+                      "personCount": 120,
+                      "occupancyRatePercent": 80,
+                      "co2Ppm": 420,
+                      "temperatureC": 22.5,
+                      "humidityPercent": 45,
+                      "airQualityIndex": 85,
+                      "entryCount": 45,
+                      "exitCount": 30,
+                      "timestamp": "2025-06-01T09:00:00.000Z"
+                    }
+                  ],
+                  "timestamp": "2025-06-01T09:05:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch occupancy data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ColumnInfo": {
+        "type": "object",
+        "description": "Metadata about a single column in a data source",
+        "properties": {
+          "column_name": {
+            "type": "string",
+            "description": "Column name in snake_case"
+          },
+          "data_type": {
+            "type": "string",
+            "description": "Semantic data type (string, float, integer, datetime)"
+          },
+          "is_numeric": {
+            "type": "boolean",
+            "description": "Whether the column contains numeric values"
+          }
+        },
+        "required": [
+          "column_name",
+          "data_type",
+          "is_numeric"
+        ]
+      },
+      "CardConfig": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique card identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "kpi",
+              "bar",
+              "line",
+              "gauge"
+            ],
+            "description": "Card visualization type"
+          },
+          "title": {
+            "type": "string",
+            "description": "Card display title"
+          },
+          "dataSource": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "energy_consumption",
+                  "hvac_performance",
+                  "occupancy",
+                  "alerts_events"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data source table name"
+          },
+          "xAxis": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "Column name"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Display label"
+                  }
+                },
+                "required": [
+                  "field",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "X-axis field (for Bar/Line charts)"
+          },
+          "yAxis": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "Column name"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Display label"
+                  }
+                },
+                "required": [
+                  "field",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Y-axis / value field"
+          },
+          "aggregation": {
+            "type": "string",
+            "enum": [
+              "sum",
+              "avg",
+              "min",
+              "max",
+              "count"
+            ],
+            "description": "Aggregation function to apply"
+          },
+          "groupBy": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "Column name"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Display label"
+                  }
+                },
+                "required": [
+                  "field",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Group-by field (for series in Line charts)"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "Column to filter on"
+                  },
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "eq",
+                      "neq",
+                      "gt",
+                      "gte",
+                      "lt",
+                      "lte"
+                    ],
+                    "description": "Comparison operator"
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "description": "Filter value"
+                  }
+                },
+                "required": [
+                  "field",
+                  "operator",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Card-level filter"
+          },
+          "gaugeMin": {
+            "description": "Gauge minimum value",
+            "type": "number"
+          },
+          "gaugeMax": {
+            "description": "Gauge maximum value",
+            "type": "number"
+          },
+          "gaugeTarget": {
+            "description": "Gauge target value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "dataSource",
+          "xAxis",
+          "yAxis",
+          "aggregation",
+          "groupBy",
+          "filter"
+        ],
+        "additionalProperties": false
+      },
+      "AxisConfig": {
+        "type": "object",
+        "description": "Axis field configuration",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "label"
+        ]
+      },
+      "FilterConfig": {
+        "type": "object",
+        "description": "Card-level filter",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string",
+            "enum": [
+              "eq",
+              "neq",
+              "gt",
+              "gte",
+              "lt",
+              "lte"
+            ]
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ]
+      },
+      "GlobalFilters": {
+        "type": "object",
+        "properties": {
+          "buildingId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Building ID filter"
+          },
+          "floor": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Floor number filter"
+          },
+          "timeRange": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "today",
+                  "last7",
+                  "custom"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Time range preset"
+          },
+          "customStart": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Custom range start"
+          },
+          "customEnd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Custom range end"
+          }
+        },
+        "required": [
+          "buildingId",
+          "floor",
+          "timeRange",
+          "customStart",
+          "customEnd"
+        ],
+        "additionalProperties": false
+      },
+      "QueryResult": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "aggregated": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "aggregated"
+        ],
+        "additionalProperties": false
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      },
+      "ErrorDetailResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "details": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}
