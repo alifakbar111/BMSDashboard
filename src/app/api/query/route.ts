@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { buildQuery } from "@/lib/query-builder";
 import { aggregate } from "@/lib/aggregation";
-import type { CardConfig, GlobalFilters, AggregationType } from "@/lib/types";
+import { QueryRequestBodySchema, CardConfigSchema } from "@/lib/schemas";
+import type { AggregationType } from "@/lib/types";
 
 function getNumericValue(row: Record<string, unknown>, field: string): number {
   const val = row[field];
@@ -34,24 +35,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 });
     }
 
-    if (!body || typeof body !== "object") {
-      return NextResponse.json({ error: "Request body must be a JSON object" }, { status: 400 });
-    }
-
-    const { config, globalFilters } = body as Record<string, unknown>;
-    if (!config || !globalFilters) {
+    const parsed = QueryRequestBodySchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Request body must contain 'config' and 'globalFilters'" },
+        { error: "Invalid request body", details: parsed.error.issues },
         { status: 400 },
       );
     }
 
-    const cardConfig = config as CardConfig;
-    if (!cardConfig.dataSource) {
-      return NextResponse.json({ error: "Card has no data source configured" }, { status: 400 });
-    }
-
-    const query = buildQuery(cardConfig, globalFilters as GlobalFilters);
+    const { config: cardConfig, globalFilters } = parsed.data;
+    const query = buildQuery(cardConfig, globalFilters);
     const model = (prisma as any)[query.modelName];
     if (!model) {
       return NextResponse.json({ error: `Unknown model: ${query.modelName}` }, { status: 500 });
