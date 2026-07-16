@@ -1,0 +1,46 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md", ".opencode/rules/*.md", ".opencode/skills/*.md"],
+  "agent": {
+    "frontend-agent": {
+      "description": "Build Next.js frontend code for the BMS Dashboard — dashboard builder with drag-and-drop, card types, charts, floor plan SVG, and filters.",
+      "mode": "all"
+    },
+    "backend-agent": {
+      "description": "Build backend API for the BMS Dashboard — Prisma queries, aggregation logic, dynamic query construction, and filtering.",
+      "mode": "all"
+    },
+    "infra-agent": {
+      "description": "Set up database infrastructure — Prisma schema, SQL Server connection, CSV data seeding.",
+      "mode": "all"
+    },
+    "bug-hunter-agent": {
+      "description": "Find and fix bugs in the BMS Dashboard — investigate test failures, rendering issues, filter problems, and edge cases.",
+      "mode": "all"
+    },
+    "code-review-agent": {
+      "description": "Review code quality — component structure, naming, dead code, TypeScript usage, and pattern consistency.",
+      "mode": "all"
+    },
+    "security-auditor-agent": {
+      "description": "Perform security audits — SQL injection, XSS, insecure endpoints, data exposure, Prisma query safety.",
+      "mode": "all"
+    },
+    "ui-ux-agent": {
+      "description": "Polish visual design — Tailwind CSS styling, color scheme, responsive layout, loading/empty states.",
+      "mode": "all"
+    },
+    "testing-agent": {
+      "description": "Write and run tests — unit tests, integration tests, and component tests.",
+      "mode": "all"
+    },
+    "document-writer-agent": {
+      "description": "Create project documentation — README, Architecture Brief, PROMPT_HISTORY.md.",
+      "mode": "all"
+    },
+    "orchestrator-agent": {
+      "description": "Orchestrate BMS Dashboard builds by delegating work to specialist agents.",
+      "mode": "all"
+    }
+  }
+}

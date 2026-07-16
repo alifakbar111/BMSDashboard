@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "skills": {
+    "accessibility-review": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "skillPath": "design/skills/accessibility-review/SKILL.md",
+      "computedHash": "987e6d762060025045c4cc243cbc2feefc5397bb2998d666b4c334c4c1e19d8a"
+    },
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "computedHash": "253570c46990ea018dd4520dba80cd77c35f9e5a8654057da1812face7be30cd"
+    },
+    "code-review": {
+      "source": "getsentry/skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-review/SKILL.md",
+      "computedHash": "f0604d278cfd4eac4dac29eb297a5c6b6ebfb9f020235e8aafbe2eff0e42a147"
+    },
+    "code-simplifier": {
+      "source": "getsentry/skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-simplifier/SKILL.md",
+      "computedHash": "ff9cb10181e31daf1f1644754c491601a7849dff4b4536a1d0ec4f97f680348e"
+    },
+    "codebase-design": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/codebase-design/SKILL.md",
+      "computedHash": "6d9d51d8caa01633fd00cf87089c5618c982321f942ac69f62565dc001c6b22f"
+    },
+    "commit": {
+      "source": "getsentry/skills",
+      "sourceType": "github",
+      "skillPath": "skills/commit/SKILL.md",
+      "computedHash": "39623de3d04807c75c34c976d6aaac5ff5b079dc96ae2f2a0d966fa70f9f2700"
+    },
+    "diagnosing-bugs": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
+      "computedHash": "fd6c99466b7ba43be624e6e66ed6d7af2796ded7218f24c83820823977819e22"
+    },
+    "dispatching-parallel-agents": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
+      "computedHash": "85df55d2235a7623b315dac4bc340c14a37dcdc57c869c80a829e1a53a174689"
+    },
+    "executing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/executing-plans/SKILL.md",
+      "computedHash": "08604f93f2e38dd3575e5503c79cda5c623c78a8df0e472457ac5ef7a33f22b8"
+    },
+    "explore-data": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "skillPath": "data/skills/explore-data/SKILL.md",
+      "computedHash": "eeb0f7d4b8a834f773253a3038ca41b38b5ce2c1706dd0a4f3f7b4a38ce819e3"
+    },
+    "find-bugs": {
+      "source": "getsentry/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-bugs/SKILL.md",
+      "computedHash": "7bf00be700d1d205b747126aa96d3587bbc2855cd09897614676e179eebe35ed"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
+    },
+    "improve-codebase-architecture": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "computedHash": "66e8a50c83c3c724fcfe0769701b665c56cec220cc4f49cc1aee8bdfc07de94a"
+    },
+    "presentation-creator": {
+      "source": "getsentry/skills",
+      "sourceType": "github",
+      "skillPath": "skills/presentation-creator/SKILL.md",
+      "computedHash": "5699d98ceba1ca862be21aa6bbf51bf41331c43725047962784ced369df70ee5"
+    },
+    "prototype": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/prototype/SKILL.md",
+      "computedHash": "faba901c53a6ca245174c4ba5db3929d14253232b3050fdbd46539720adf1ab8"
+    },
+    "qa": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/deprecated/qa/SKILL.md",
+      "computedHash": "223de2b02aa9ab36cfa4fe93e80e527b56e912e7ae725f9d596f6d2457afab77"
+    },
+    "react-nextjs-development": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-nextjs-development/SKILL.md",
+      "computedHash": "f6fccc099580762dc1ffe48d8462c9183f14225a6dd28679cb56a0e5b011669a"
+    },
+    "recommend": {
+      "source": "toss/es-toolkit",
+      "sourceType": "github",
+      "skillPath": "es-toolkit-plugin/skills/recommend/SKILL.md",
+      "computedHash": "635cf892797a95fb765fbb9c015b815e8704de5395401393938f54e60cc572fe"
+    },
+    "requesting-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/requesting-code-review/SKILL.md",
+      "computedHash": "cde520e9118d7e6b74b5ab0123cff2f68d9c07bddb3f82c997753b6126600aed"
+    },
+    "security-review": {
+      "source": "getsentry/skills",
+      "sourceType": "github",
+      "skillPath": "skills/security-review/SKILL.md",
+      "computedHash": "ec9792f5fd065e020c48ab5a57707c83435c286c449ba98dfa726d7b1842c868"
+    },
+    "subagent-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/subagent-driven-development/SKILL.md",
+      "computedHash": "aaeb6686111c76b3c38e09156fe18af44d73b324ee055e5cb0ab63dc776f216f"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/systematic-debugging/SKILL.md",
+      "computedHash": "792a368e074981d7e3138edb439e138489b2ac247cd1e5739fab52af680fb17b"
+    },
+    "task-management": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "skillPath": "productivity/skills/task-management/SKILL.md",
+      "computedHash": "a1f9389c1f06bb9c630001875e0801eb209b08818ba217f0114bc62d149eb056"
+    },
+    "test-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/test-driven-development/SKILL.md",
+      "computedHash": "eee144aea35d783296d178017e9fe843c6d16cc8b240e106f5e50910f6caf329"
+    },
+    "testing-strategy": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "skillPath": "engineering/skills/testing-strategy/SKILL.md",
+      "computedHash": "2fe64e97a596e862cd946bb8cddbbf4e9f1e1f21ca817f586111a25af474d0f8"
+    },
+    "writing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/writing-plans/SKILL.md",
+      "computedHash": "b73b59d43c34c3fc225bfae419c458bb216af80df25fc0c545dfa7fd2a161722"
+    }
+  }
+}
