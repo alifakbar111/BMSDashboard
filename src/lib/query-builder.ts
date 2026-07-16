@@ -46,17 +46,8 @@ export function buildWhereClause(
   return where;
 }
 
-function getPrismaModel(table: TableName): string {
-  const map: Record<TableName, string> = {
-    energy_consumption: "energyConsumption",
-    hvac_performance: "hvacPerformance",
-    occupancy: "occupancy",
-    alerts_events: "alertsEvent",
-  };
-  return map[table];
-}
-
-function mapFieldName(field: string, table: TableName): string {
+/** Map a snake_case column name to its camelCase Prisma field name. */
+export function mapFieldName(field: string, table: TableName): string {
   const fieldMappings: Record<TableName, Record<string, string>> = {
     energy_consumption: {
       building_id: "buildingId",
@@ -108,6 +99,16 @@ function mapFieldName(field: string, table: TableName): string {
   return fieldMappings[table]?.[field] ?? field;
 }
 
+function getPrismaModel(table: TableName): string {
+  const map: Record<TableName, string> = {
+    energy_consumption: "energyConsumption",
+    hvac_performance: "hvacPerformance",
+    occupancy: "occupancy",
+    alerts_events: "alertsEvent",
+  };
+  return map[table];
+}
+
 export function buildQuery(
   config: CardConfig,
   globalFilters: GlobalFilters,
@@ -118,10 +119,19 @@ export function buildQuery(
   groupBy: string[];
   select: Record<string, boolean>;
   orderBy: Record<string, string>;
+  /** Mapped camelCase version of yAxis field for route handlers. */
+  mappedYField: string | null;
+  /** Mapped camelCase version of xAxis field for route handlers. */
+  mappedXField: string | null;
 } {
   const table = config.dataSource!;
   const modelName = getPrismaModel(table);
-  const where = buildWhereClause(globalFilters, config.filter ?? undefined);
+
+  // Map card filter field names to camelCase for Prisma compatibility
+  const mappedFilter = config.filter
+    ? { ...config.filter, field: mapFieldName(config.filter.field, table) }
+    : undefined;
+  const where = buildWhereClause(globalFilters, mappedFilter);
 
   const groupBy: string[] = [];
   const select: Record<string, boolean> = {};
@@ -152,5 +162,5 @@ export function buildQuery(
     select[yField] = true;
   }
 
-  return { table, modelName, where, groupBy, select, orderBy };
+  return { table, modelName, where, groupBy, select, orderBy, mappedYField: yField, mappedXField: xField };
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { buildQuery } from "@/lib/query-builder";
 import { aggregate } from "@/lib/aggregation";
-import type { CardConfig, GlobalFilters } from "@/lib/types";
+import type { CardConfig, GlobalFilters, AggregationType } from "@/lib/types";
 
 function getNumericValue(row: Record<string, unknown>, field: string): number {
   const val = row[field];
@@ -16,25 +16,42 @@ function getNumericValue(row: Record<string, unknown>, field: string): number {
 
 export function processQueryResult(
   rows: Record<string, unknown>[],
-  aggregationType: string,
+  aggregationType: AggregationType,
   yField: string,
 ): { data: Record<string, unknown>[]; aggregated: number } {
   if (rows.length === 0) return { data: [], aggregated: 0 };
   const values = rows.map((row) => getNumericValue(row, yField));
-  const aggregated = aggregate(values, aggregationType as any);
+  const aggregated = aggregate(values, aggregationType);
   return { data: rows, aggregated };
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { config, globalFilters } = body as { config: CardConfig; globalFilters: GlobalFilters };
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 });
+    }
 
-    if (!config.dataSource) {
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Request body must be a JSON object" }, { status: 400 });
+    }
+
+    const { config, globalFilters } = body as Record<string, unknown>;
+    if (!config || !globalFilters) {
+      return NextResponse.json(
+        { error: "Request body must contain 'config' and 'globalFilters'" },
+        { status: 400 },
+      );
+    }
+
+    const cardConfig = config as CardConfig;
+    if (!cardConfig.dataSource) {
       return NextResponse.json({ error: "Card has no data source configured" }, { status: 400 });
     }
 
-    const query = buildQuery(config, globalFilters);
+    const query = buildQuery(cardConfig, globalFilters as GlobalFilters);
     const model = (prisma as any)[query.modelName];
     if (!model) {
       return NextResponse.json({ error: `Unknown model: ${query.modelName}` }, { status: 500 });
@@ -48,9 +65,10 @@ export async function POST(request: NextRequest) {
 
     const rawData = rows as unknown as Record<string, unknown>[];
 
-    if (config.type === "kpi" || config.type === "gauge") {
-      const yField = config.yAxis?.field ?? "";
-      const result = processQueryResult(rawData, config.aggregation, yField);
+    if (cardConfig.type === "kpi" || cardConfig.type === "gauge") {
+      // Use the already-mapped camelCase field name from buildQuery
+      const yField = query.mappedYField ?? "";
+      const result = processQueryResult(rawData, cardConfig.aggregation, yField);
       return NextResponse.json(result);
     }
 
