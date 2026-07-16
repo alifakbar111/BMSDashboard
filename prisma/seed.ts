@@ -1,11 +1,20 @@
+import "dotenv/config";
 import { PrismaMssql } from "@prisma/adapter-mssql";
 import { PrismaClient } from "../src/generated/prisma/client";
 import * as fs from "fs";
 import * as path from "path";
+import { parse } from "csv-parse/sync";
 
-// Parse DATABASE_URL for adapter config
-// URL format: sqlserver://host:port;database=db;user=user;password=pwd;trustServerCertificate=true
-const connectionUrl = process.env.DATABASE_URL || "sqlserver://localhost:1433;database=bms_dashboard;user=SA;password=Y0uRStrOng!P4ssw0rd;trustServerCertificate=true";
+// ---------------------------------------------------------------------------
+// Connection setup
+// ---------------------------------------------------------------------------
+const connectionUrl = process.env.DATABASE_URL;
+if (!connectionUrl) {
+  console.error("❌ FATAL: DATABASE_URL environment variable is required");
+  console.error("   Copy .env.example to .env and set a strong SA_PASSWORD");
+  process.exit(1);
+}
+
 const getParam = (url: string, key: string): string => {
   const match = url.match(new RegExp(`${key}=([^;]+)`));
   return match ? match[1] : "";
@@ -18,7 +27,7 @@ const config = {
   port: portMatch ? parseInt(portMatch[1], 10) : 1433,
   database: getParam(connectionUrl, "database") || "bms_dashboard",
   user: getParam(connectionUrl, "user") || "SA",
-  password: getParam(connectionUrl, "password") || "Y0uRStrOng!P4ssw0rd",
+  password: getParam(connectionUrl, "password") || "",
   options: {
     encrypt: getParam(connectionUrl, "encrypt") === "true",
     trustServerCertificate: getParam(connectionUrl, "trustServerCertificate") !== "false",
@@ -29,8 +38,33 @@ const prisma = new PrismaClient({ adapter });
 
 const DATA_DIR = path.resolve(process.cwd(), "data");
 
-/** Simple CSV parser. Returns an array of objects keyed by header names. */
-function parseCsv(filename: string): Record<string, string>[] {
+// ---------------------------------------------------------------------------
+// Safe number helpers
+// ---------------------------------------------------------------------------
+function safeInt(val: string, fallback = 0): number {
+  const n = parseInt(val, 10);
+  return isNaN(n) ? fallback : n;
+}
+
+function safeFloat(val: string, fallback = 0): number {
+  const n = parseFloat(val);
+  return isNaN(n) ? fallback : n;
+}
+
+function nullableString(val: string): string | null {
+  return val === "" ? null : val;
+}
+
+function nullableDate(val: string): Date | null {
+  if (val === "") return null;
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+// ---------------------------------------------------------------------------
+// Generic CSV parser (RFC 4180 via csv-parse)
+// ---------------------------------------------------------------------------
+function parseCsv<T extends Record<string, string>>(filename: string): T[] {
   const filePath = path.join(DATA_DIR, filename);
   const content = fs.readFileSync(filePath, "utf-8").trim();
 
@@ -39,166 +73,120 @@ function parseCsv(filename: string): Record<string, string>[] {
     return [];
   }
 
-  const lines = content.split("\n");
-  if (lines.length < 2) {
-    console.warn(`  ⚠  ${filename} has no data rows – skipping`);
-    return [];
-  }
-
-  const headers = lines[0].split(",").map((h) => h.trim());
-  const rows: Record<string, string>[] = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-
-    const values = line.split(",");
-    const row: Record<string, string> = {};
-    headers.forEach((header, idx) => {
-      row[header] = values[idx]?.trim() ?? "";
-    });
-    rows.push(row);
-  }
-
-  return rows;
-}
-
-function nullableString(val: string): string | null {
-  return val === "" ? null : val;
-}
-
-function nullableDate(val: string): Date | null {
-  return val === "" ? null : new Date(val);
+  return parse(content, {
+    columns: true,
+    skip_empty_lines: true,
+    trim: true,
+    relax_column_count: true,
+  }) as T[];
 }
 
 // ---------------------------------------------------------------------------
-// Seed: EnergyConsumption
+// Generic seed function (DRY)
 // ---------------------------------------------------------------------------
-async function seedEnergyConsumption(): Promise<number> {
-  const raw = parseCsv("energy_consumption.csv");
-  console.log(`  Parsed ${raw.length} rows from energy_consumption.csv`);
-
-  for (const r of raw) {
-    await prisma.energyConsumption.create({
-      data: {
-        timestamp: new Date(r.timestamp),
-        buildingId: r.building_id,
-        floor: parseInt(r.floor, 10),
-        zone: r.zone,
-        deviceType: r.device_type,
-        deviceId: r.device_id,
-        energyKwh: parseFloat(r.energy_kwh),
-        powerKw: parseFloat(r.power_kw),
-        voltageV: parseFloat(r.voltage_v),
-        currentA: parseFloat(r.current_a),
-        powerFactor: parseFloat(r.power_factor),
-        costUsd: parseFloat(r.cost_usd),
-        sourceSystem: r.source_system,
-      },
-    });
+async function seedTable<T extends Record<string, unknown>>(
+  modelName: string,
+  filename: string,
+  mapper: (row: Record<string, string>) => T,
+): Promise<number> {
+  const raw = parseCsv(filename);
+  if (raw.length === 0) {
+    console.log(`  ⚠  No data to seed for ${modelName}`);
+    return 0;
   }
+  console.log(`  Parsed ${raw.length} rows from ${filename}`);
 
-  console.log(`  ✅ Inserted ${raw.length} EnergyConsumption rows`);
-  return raw.length;
+  const data = raw.map(mapper);
+
+  await prisma.$transaction(
+    data.map((row) =>
+      (prisma as any)[modelName].create({ data: row }),
+    ),
+  );
+
+  console.log(`  ✅ Inserted ${data.length} ${modelName} rows`);
+  return data.length;
 }
 
 // ---------------------------------------------------------------------------
-// Seed: HvacPerformance
+// Row mappers
 // ---------------------------------------------------------------------------
-async function seedHvacPerformance(): Promise<number> {
-  const raw = parseCsv("hvac_performance.csv");
-  console.log(`  Parsed ${raw.length} rows from hvac_performance.csv`);
-
-  for (const r of raw) {
-    await prisma.hvacPerformance.create({
-      data: {
-        timestamp: new Date(r.timestamp),
-        buildingId: r.building_id,
-        floor: parseInt(r.floor, 10),
-        zone: r.zone,
-        unitId: r.unit_id,
-        mode: r.mode,
-        setpointTempC: parseFloat(r.setpoint_temp_c),
-        actualTempC: parseFloat(r.actual_temp_c),
-        outdoorTempC: parseFloat(r.outdoor_temp_c),
-        humidityPercent: parseFloat(r.humidity_percent),
-        airflowM3h: parseFloat(r.airflow_m3h),
-        filterStatusPercent: parseFloat(r.filter_status_percent),
-        compressorHours: parseFloat(r.compressor_hours),
-        energyEfficiencyRatio: parseFloat(r.energy_efficiency_ratio),
-        operatingStatus: r.operating_status,
-      },
-    });
-  }
-
-  console.log(`  ✅ Inserted ${raw.length} HvacPerformance rows`);
-  return raw.length;
+function mapEnergyConsumption(r: Record<string, string>) {
+  return {
+    timestamp: new Date(r.timestamp),
+    buildingId: r.building_id,
+    floor: safeInt(r.floor),
+    zone: r.zone,
+    deviceType: r.device_type,
+    deviceId: r.device_id,
+    energyKwh: safeFloat(r.energy_kwh),
+    powerKw: safeFloat(r.power_kw),
+    voltageV: safeFloat(r.voltage_v),
+    currentA: safeFloat(r.current_a),
+    powerFactor: safeFloat(r.power_factor),
+    costUsd: safeFloat(r.cost_usd),
+    sourceSystem: r.source_system,
+  };
 }
 
-// ---------------------------------------------------------------------------
-// Seed: Occupancy
-// ---------------------------------------------------------------------------
-async function seedOccupancy(): Promise<number> {
-  const raw = parseCsv("occupancy.csv");
-  console.log(`  Parsed ${raw.length} rows from occupancy.csv`);
-
-  for (const r of raw) {
-    await prisma.occupancy.create({
-      data: {
-        timestamp: new Date(r.timestamp),
-        buildingId: r.building_id,
-        floor: parseInt(r.floor, 10),
-        zone: r.zone,
-        zoneCapacity: parseInt(r.zone_capacity, 10),
-        personCount: parseInt(r.person_count, 10),
-        occupancyRatePercent: parseFloat(r.occupancy_rate_percent),
-        co2Ppm: parseInt(r.co2_ppm, 10),
-        temperatureC: parseFloat(r.temperature_c),
-        humidityPercent: parseFloat(r.humidity_percent),
-        airQualityIndex: parseInt(r.air_quality_index, 10),
-        entryCount: parseInt(r.entry_count, 10),
-        exitCount: parseInt(r.exit_count, 10),
-      },
-    });
-  }
-
-  console.log(`  ✅ Inserted ${raw.length} Occupancy rows`);
-  return raw.length;
+function mapHvacPerformance(r: Record<string, string>) {
+  return {
+    timestamp: new Date(r.timestamp),
+    buildingId: r.building_id,
+    floor: safeInt(r.floor),
+    zone: r.zone,
+    unitId: r.unit_id,
+    mode: r.mode,
+    setpointTempC: safeFloat(r.setpoint_temp_c),
+    actualTempC: safeFloat(r.actual_temp_c),
+    outdoorTempC: safeFloat(r.outdoor_temp_c),
+    humidityPercent: safeFloat(r.humidity_percent),
+    airflowM3h: safeFloat(r.airflow_m3h),
+    filterStatusPercent: safeFloat(r.filter_status_percent),
+    compressorHours: safeFloat(r.compressor_hours),
+    energyEfficiencyRatio: safeFloat(r.energy_efficiency_ratio),
+    operatingStatus: r.operating_status,
+  };
 }
 
-// ---------------------------------------------------------------------------
-// Seed: AlertsEvent
-// ---------------------------------------------------------------------------
-async function seedAlertsEvent(): Promise<number> {
-  const raw = parseCsv("alerts_events.csv");
-  console.log(`  Parsed ${raw.length} rows from alerts_events.csv`);
+function mapOccupancy(r: Record<string, string>) {
+  return {
+    timestamp: new Date(r.timestamp),
+    buildingId: r.building_id,
+    floor: safeInt(r.floor),
+    zone: r.zone,
+    zoneCapacity: safeInt(r.zone_capacity),
+    personCount: safeInt(r.person_count),
+    occupancyRatePercent: safeFloat(r.occupancy_rate_percent),
+    co2Ppm: safeInt(r.co2_ppm),
+    temperatureC: safeFloat(r.temperature_c),
+    humidityPercent: safeFloat(r.humidity_percent),
+    airQualityIndex: safeInt(r.air_quality_index),
+    entryCount: safeInt(r.entry_count),
+    exitCount: safeInt(r.exit_count),
+  };
+}
 
-  for (const r of raw) {
-    await prisma.alertsEvent.create({
-      data: {
-        timestamp: new Date(r.timestamp),
-        buildingId: r.building_id,
-        floor: parseInt(r.floor, 10),
-        zone: r.zone,
-        alertId: r.alert_id,
-        severity: r.severity,
-        category: r.category,
-        deviceId: nullableString(r.device_id),
-        alarmType: r.alarm_type,
-        description: r.description,
-        value: parseFloat(r.value),
-        threshold: parseFloat(r.threshold),
-        unit: r.unit,
-        durationMinutes: parseInt(r.duration_minutes, 10),
-        resolvedAt: nullableDate(r.resolved_at),
-        status: r.status,
-        acknowledgedBy: nullableString(r.acknowledged_by),
-      },
-    });
-  }
-
-  console.log(`  ✅ Inserted ${raw.length} AlertsEvent rows`);
-  return raw.length;
+function mapAlertsEvent(r: Record<string, string>) {
+  return {
+    timestamp: new Date(r.timestamp),
+    buildingId: r.building_id,
+    floor: safeInt(r.floor),
+    zone: r.zone,
+    alertId: r.alert_id,
+    severity: r.severity,
+    category: r.category,
+    deviceId: nullableString(r.device_id),
+    alarmType: r.alarm_type,
+    description: r.description,
+    value: safeFloat(r.value),
+    threshold: safeFloat(r.threshold),
+    unit: r.unit,
+    durationMinutes: safeInt(r.duration_minutes),
+    resolvedAt: nullableDate(r.resolved_at),
+    status: r.status,
+    acknowledgedBy: nullableString(r.acknowledged_by),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -209,10 +197,10 @@ async function main() {
 
   const counts: Record<string, number> = {};
 
-  counts.EnergyConsumption = await seedEnergyConsumption();
-  counts.HvacPerformance = await seedHvacPerformance();
-  counts.Occupancy = await seedOccupancy();
-  counts.AlertsEvent = await seedAlertsEvent();
+  counts.EnergyConsumption = await seedTable("energyConsumption", "energy_consumption.csv", mapEnergyConsumption);
+  counts.HvacPerformance = await seedTable("hvacPerformance", "hvac_performance.csv", mapHvacPerformance);
+  counts.Occupancy = await seedTable("occupancy", "occupancy.csv", mapOccupancy);
+  counts.AlertsEvent = await seedTable("alertsEvent", "alerts_events.csv", mapAlertsEvent);
 
   console.log("\n📋 Seed summary:");
   for (const [model, count] of Object.entries(counts)) {
