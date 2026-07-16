@@ -121,13 +121,31 @@ pnpm run build 2>&1 | tail -20
 ```
 Expected: `✓ Compiled successfully`
 
-### 13. Git init + branch setup
+### 13. Git init + granular commits
 ```bash
 git init
-git add -A
-git commit -m "chore(project): scaffold Next.js 16 with shadcn/ui, TypeScript, and Tailwind"
 git branch -m main
 git checkout -b phase/1-setup
+
+# Commit 1: Pre-existing project assets
+git add .agents/ .opencode/ .superpowers/ AGENTS.md TechnicalTest/ data/ docs/ opencode.json skills-lock.json components.json
+git commit -m "chore(repo): add project specification, data files, and agent configuration"
+
+# Commit 2: Next.js scaffold
+git add next.config.ts tsconfig.json postcss.config.mjs package.json pnpm-lock.yaml prisma/ public/ src/app/favicon.ico src/app/globals.css src/lib/
+git commit -m "chore(project): scaffold Next.js 16 with TypeScript, Tailwind, and Turbopack"
+
+# Commit 3: shadcn UI components
+git add src/components/ui/
+git commit -m "chore(ui): add shadcn/ui preset and components (button, card, dialog, select, tabs, input, label, tooltip, skeleton, chart)"
+
+# Commit 4: Custom providers + layout
+git add src/app/layout.tsx src/app/page.tsx src/components/layout/
+git commit -m "feat(web): add QueryProvider, ThemeProvider, and root layout with dark mode"
+
+# Commit 5: Config
+git add .gitignore
+git commit -m "chore(project): add .gitignore for Node.js, Next.js, and environment files"
 ```
 
 ## Expected Output
@@ -135,6 +153,15 @@ git checkout -b phase/1-setup
 - TanStack Query + oxlint/oxfmt installed
 - All dependencies installed
 - Git: main + phase/1-setup branches
+- **5 granular commits** (not one big lump):
+
+  | # | Commit message | Files |
+  |---|---|---|
+  | 1 | `chore(repo): add project specification...` | Pre-existing assets |
+  | 2 | `chore(project): scaffold Next.js 16...` | create-next-app output |
+  | 3 | `chore(ui): add shadcn/ui preset...` | UI components |
+  | 4 | `feat(web): add QueryProvider...` | Layout + providers |
+  | 5 | `chore(project): add .gitignore...` | Config |
 
 ## Report
 Write to `.superpowers/sdd/task-1-report.md`: status, commits, build output, branch name, concerns

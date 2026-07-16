@@ -11,6 +11,7 @@
 ## Global Constraints
 
 - Build order: data-explorer -> infra -> backend -> frontend -> polish — do NOT parallelize phases
+- **Manual test gate**: After each phase completes, user manually tests before approving the next phase. Each phase is committed to its feature branch, the user verifies, then merges to `main`.
 - No client-side CSV parsing — all data from backend API
 - Backend constructs queries using Prisma Client, returns JSON — no raw SQL injection risks
 - **Package manager: PNPM** — all install/add commands use pnpm, not npm
@@ -26,6 +27,7 @@
 - Alert severity colors: Critical = red, Warning = orange, Info = blue
 - localStorage for layout persistence
 - Commit format: `type(scope): message` — single line, no body, no trailers, no Co-Authored-By
+- **Granular commits**: Each logical change gets its own commit. Never lump unrelated changes (e.g., "scaffold + shadcn + providers" should be 3+ separate commits). A phase may produce 3-8 commits depending on scope.
 - Git branch strategy: feature branches per phase (`phase/1-setup`, `phase/2-infra`, etc.), merged to `main`
 - Git init before first commit — no git repo exists yet
 - Root .gitignore must NOT be inside .opencode/ (that dir has its own separate gitignore)
@@ -246,21 +248,39 @@ pnpm run build 2>&1 | tail -20
 
 Expected: `✓ Compiled successfully`
 
-- [ ] **Step 13: Init git, create main branch, create phase/1-setup branch, commit**
+- [ ] **Step 13: Git init + granular commits**
 
 ```bash
 git init
-git add -A
-git commit -m "chore(project): scaffold Next.js 16 with shadcn/ui, TypeScript, and Tailwind"
 git branch -m main
 git checkout -b phase/1-setup
+
+# Commit 1: Pre-existing project assets
+git add .agents/ .opencode/ .superpowers/ AGENTS.md TechnicalTest/ data/ docs/ opencode.json skills-lock.json components.json
+git commit -m "chore(repo): add project specification, data files, and agent configuration"
+
+# Commit 2: Next.js scaffold + deps
+git add next.config.ts tsconfig.json postcss.config.mjs package.json pnpm-lock.yaml prisma/ public/ src/app/favicon.ico src/app/globals.css src/lib/utils.ts
+git commit -m "chore(project): scaffold Next.js 16 with TypeScript, Tailwind, and Turbopack"
+
+# Commit 3: shadcn UI components
+git add src/components/ui/
+git commit -m "chore(ui): add shadcn/ui preset and components (button, card, dialog, select, tabs, input, label, tooltip, skeleton, chart)"
+
+# Commit 4: Custom providers + root layout
+git add src/app/layout.tsx src/app/page.tsx src/components/layout/
+git commit -m "feat(web): add QueryProvider, ThemeProvider, and root layout with dark mode"
+
+# Commit 5: Config
+git add .gitignore
+git commit -m "chore(project): add .gitignore for Node.js, Next.js, and environment files"
 ```
 
 ---
 
-### [Phase 1 Complete] Merge `phase/1-setup` to `main`
+### [Phase 1 Complete] User tests, then Merge `phase/1-setup` to `main`
 
-After Tasks 1-2 are done on `phase/1-setup`:
+After user manually tests and approves: run the merge, then start Phase 2.
 
 ```bash
 git checkout main
@@ -508,9 +528,9 @@ git commit -m "infra(prisma): add seed script for CSV data import"
 
 ---
 
-### [Phase 2 Complete] Merge `phase/2-infra` to `main`
+### [Phase 2 Complete] User tests, then Merge `phase/2-infra` to `main`
 
-After Task 4 completes on `phase/2-infra`:
+After user manually tests infra (schema, seed, data loads correctly) and approves:
 
 ```bash
 git checkout main
@@ -1380,9 +1400,9 @@ git commit -m "feat(api): add GET /api/occupancy/latest for floor plan data"
 
 ---
 
-### [Phase 3 Complete] Merge `phase/3-backend` to `main`
+### [Phase 3 Complete] User tests, then Merge `phase/3-backend` to `main`
 
-After Task 9 completes on `phase/3-backend`:
+After user manually tests backend APIs (curl/Postman all endpoints) and approves:
 
 ```bash
 git checkout main
@@ -3137,9 +3157,9 @@ git commit -m "feat(floor-plan): add SVG floor plan with occupancy overlays and 
 
 ---
 
-### [Phase 4 Complete] Merge `phase/4-frontend` to `main`
+### [Phase 4 Complete] User tests, then Merge `phase/4-frontend` to `main`
 
-After Task 19 completes on `phase/4-frontend`:
+After user manually tests frontend (dashboard builder, cards, filters, floor plan) and approves:
 
 ```bash
 git checkout main
@@ -3639,9 +3659,9 @@ git add -A && git commit -m "chore: final verification and cleanup"
 
 ---
 
-### [Final Merge] Merge `phase/5-polish` to `main`
+### [Final Merge] User tests, then Merge `phase/5-polish` to `main`
 
-After Task 24 completes:
+After user manually tests the full dashboard (all features working, no regressions) and approves:
 
 ```bash
 git checkout main
