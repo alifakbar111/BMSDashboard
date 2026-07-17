@@ -24,6 +24,20 @@ function getNumericValue(row: Record<string, unknown>, field: string): number {
   return 0;
 }
 
+/** Round all numeric values in a row to 2 decimal places to avoid floating-point noise (e.g. 576.0000000000001 → 576). */
+function roundRowNumbers<T extends Record<string, unknown>>(row: T): T {
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(row)) {
+    const v = row[key];
+    if (typeof v === "number" && !Number.isInteger(v)) {
+      out[key] = Math.round(v * 100) / 100;
+    } else {
+      out[key] = v;
+    }
+  }
+  return out as T;
+}
+
 export function processQueryResult(
   rows: Record<string, unknown>[],
   aggregationType: AggregationType,
@@ -31,8 +45,8 @@ export function processQueryResult(
 ): { data: Record<string, unknown>[]; aggregated: number } {
   if (rows.length === 0) return { data: [], aggregated: 0 };
   const values = rows.map((row) => getNumericValue(row, yField));
-  const aggregated = aggregate(values, aggregationType);
-  return { data: rows, aggregated };
+  const aggregated = Math.round(aggregate(values, aggregationType) * 100) / 100;
+  return { data: rows.map(roundRowNumbers), aggregated };
 }
 
 export async function POST(request: NextRequest) {
@@ -85,12 +99,25 @@ export async function POST(request: NextRequest) {
         count: "_count",
       };
       const aggField = aggregationMap[cardConfig.aggregation];
-      rows = await (model as any).groupBy({
+      const rawRows = await (model as any).groupBy({
         by: query.groupBy,
         where: query.where,
         [aggField]: { [query.mappedYField]: true },
         orderBy: Object.keys(query.orderBy).length > 0 ? query.orderBy : undefined,
       }) as Record<string, unknown>[];
+      // Flatten Prisma's nested aggregation result (e.g. { _sum: { energyKwh: 83.3 }, deviceType: "HVAC" })
+      // into a flat row { deviceType: "HVAC", energyKwh: 83.3 } so chart components can read the value directly.
+      rows = rawRows.map((row) => {
+        const flat: Record<string, unknown> = {};
+        const aggContainer = row[aggField] as Record<string, unknown> | undefined;
+        if (aggContainer && query.mappedYField) {
+          flat[query.mappedYField] = aggContainer[query.mappedYField] ?? 0;
+        }
+        for (const key of Object.keys(row)) {
+          if (key !== aggField) flat[key] = row[key];
+        }
+        return roundRowNumbers(flat);
+      });
     } else {
       rows = await (model as any).findMany({
         where: query.where,

@@ -35,11 +35,18 @@ export function buildWhereClause(
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     where.timestamp = { gte: sevenDaysAgo };
-  } else if (filters.timeRange === "custom" && filters.customStart && filters.customEnd) {
-    where.timestamp = { gte: new Date(filters.customStart), lte: new Date(filters.customEnd) };
+  } else if (filters.timeRange === "custom") {
+    // Apply whichever bound(s) the user has picked so a partially-filled
+    // custom range still takes effect (instead of being silently ignored).
+    const range: { gte?: Date; lte?: Date } = {};
+    if (filters.customStart) range.gte = new Date(filters.customStart);
+    if (filters.customEnd) range.lte = new Date(filters.customEnd);
+    if (range.gte || range.lte) where.timestamp = range;
   }
   if (cardFilter) {
-    if (cardFilter.operator === "eq") {
+    if (cardFilter.value === "" || cardFilter.value === undefined || cardFilter.value === null) {
+      // skip empty/null/undefined filter values — they are semantically "no filter"
+    } else if (cardFilter.operator === "eq") {
       where[cardFilter.field] = cardFilter.value;
     } else {
       const prismaOp = parseOperatorToPrisma(cardFilter.operator);
@@ -167,6 +174,7 @@ export function buildQuery(
     select[xField] = true;
     select[yField] = true;
     if (groupField) {
+      groupBy.push(xField);
       groupBy.push(groupField);
       select[groupField] = true;
     }

@@ -3,6 +3,9 @@ import { Geist, Geist_Mono, IBM_Plex_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { QueryProvider } from "@/components/layout/QueryProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import Navbar from "@/components/layout/Navbar";
+import GlobalFilters from "@/components/layout/GlobalFilters";
+import StoreInitializer from "@/components/layout/StoreInitializer";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 
@@ -58,9 +61,12 @@ export default function RootLayout({
         >
           <QueryProvider>
             <TooltipProvider>
-              <div id="main-content" tabIndex={-1} role="main" className="flex flex-1 flex-col">
+              <StoreInitializer />
+              <Navbar />
+              <GlobalFilters />
+              <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
                 {children}
-              </div>
+              </main>
             </TooltipProvider>
           </QueryProvider>
         </ThemeProvider>

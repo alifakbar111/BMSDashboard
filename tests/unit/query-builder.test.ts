@@ -160,3 +160,56 @@ describe("buildQuery — Gauge card", () => {
     expect(query.groupBy).toHaveLength(0);
   });
 });
+
+describe("buildWhereClause — custom time range", () => {
+  // Regression: when the user picked only one of the two custom-range inputs
+  // (e.g. set a "From" but not a "To"), the old code silently dropped the
+  // filter entirely because it required BOTH to be set. The picker would
+  // show the date, but the chart wouldn't update. The fix applies whichever
+  // bound(s) the user has actually set.
+  it("applies custom range when both start and end are set", () => {
+    const where = buildWhereClause({
+      ...emptyFilters,
+      timeRange: "custom",
+      customStart: "2026-07-10T00:00:00.000Z",
+      customEnd: "2026-07-17T23:59:59.999Z",
+    });
+    expect(where.timestamp).toBeDefined();
+    expect((where.timestamp as { gte: Date }).gte).toBeInstanceOf(Date);
+    expect((where.timestamp as { lte: Date }).lte).toBeInstanceOf(Date);
+  });
+
+  it("applies only gte when only customStart is set (partial range)", () => {
+    const where = buildWhereClause({
+      ...emptyFilters,
+      timeRange: "custom",
+      customStart: "2026-07-10T00:00:00.000Z",
+      customEnd: null,
+    });
+    expect(where.timestamp).toBeDefined();
+    expect((where.timestamp as { gte: Date }).gte).toBeInstanceOf(Date);
+    expect((where.timestamp as { lte?: Date }).lte).toBeUndefined();
+  });
+
+  it("applies only lte when only customEnd is set (partial range)", () => {
+    const where = buildWhereClause({
+      ...emptyFilters,
+      timeRange: "custom",
+      customStart: null,
+      customEnd: "2026-07-17T23:59:59.999Z",
+    });
+    expect(where.timestamp).toBeDefined();
+    expect((where.timestamp as { gte?: Date }).gte).toBeUndefined();
+    expect((where.timestamp as { lte: Date }).lte).toBeInstanceOf(Date);
+  });
+
+  it("does not add a timestamp filter for custom range with no bounds set", () => {
+    const where = buildWhereClause({
+      ...emptyFilters,
+      timeRange: "custom",
+      customStart: null,
+      customEnd: null,
+    });
+    expect(where.timestamp).toBeUndefined();
+  });
+});
