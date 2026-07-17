@@ -25,7 +25,7 @@ export default function GlobalFilters() {
   const { cards, filters, setFilters } = useDashboardStore();
 
   return (
-    <div className="flex flex-wrap items-center gap-3 border-b px-4 py-2">
+    <div className="filters-bar flex flex-wrap items-center gap-3 border-b px-4 py-2">
       {/* Building */}
       <div className="flex items-center gap-2">
         <Label htmlFor="building-filter" className="text-xs text-muted-foreground">
