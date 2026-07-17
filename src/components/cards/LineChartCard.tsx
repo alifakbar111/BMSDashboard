@@ -70,28 +70,48 @@ export default function LineChartCard({ config }: LineChartCardProps) {
   const yField = config.yAxis ? toCamelCase(config.yAxis.field) : null;
   const groupField = config.groupBy ? toCamelCase(config.groupBy.field) : null;
 
-  const rows = data?.data ?? [];
+  // Stabilize the `rows` reference. `data?.data ?? []` would otherwise produce a
+  // fresh `[]` on every render when data is undefined, busting the pivotedData
+  // memo and causing Recharts to re-render on every clock tick (infinite loop).
+  const rows = useMemo<Record<string, unknown>[]>(
+    () => (data?.data ?? []) as Record<string, unknown>[],
+    [data],
+  );
+
+  // Discover the unique device-id (group) values. Memoized so the Line components
+  // receive stable `key` and `dataKey` props across renders.
+  const groups = useMemo<string[]>(() => {
+    if (!groupField) return [];
+    return [...new Set(rows.map((r) => String(r[groupField] ?? "")))]
+      .filter((g) => g !== "");
+  }, [rows, groupField]);
 
   // Pivot data when groupBy is set: each row becomes { xField, group1: y, group2: y, ... }
-  const pivotedData = useMemo(() => {
-    if (!groupField || !xField || !yField) return rows as Record<string, unknown>[];
+  // Every group key is pre-populated on every row (with `null` when missing) so
+  // Recharts can draw a continuous line per device with `connectNulls`.
+  const pivotedData = useMemo<Record<string, unknown>[]>(() => {
+    if (!groupField || !xField || !yField) return rows;
 
     const map = new Map<string, Record<string, unknown>>();
-    // Preserve insertion order
     const keys: string[] = [];
 
     for (const row of rows) {
       const xVal = String(row[xField]);
       if (!map.has(xVal)) {
-        map.set(xVal, { [xField]: xVal });
+        const entry: Record<string, unknown> = { [xField]: xVal };
+        // Pre-populate every known group with null so the line draws continuously
+        // even when a device has no reading at this timestamp.
+        for (const g of groups) entry[g] = null;
+        map.set(xVal, entry);
         keys.push(xVal);
       }
       const entry = map.get(xVal)!;
-      entry[String(row[groupField])] = row[yField];
+      const groupVal = String(row[groupField] ?? "");
+      if (groupVal) entry[groupVal] = row[yField];
     }
 
     return keys.map((k) => map.get(k)!);
-  }, [rows, groupField, xField, yField]);
+  }, [rows, groupField, xField, yField, groups]);
 
   // Find the data point closest to "now" for the ReferenceLine
   const closestX = useMemo(() => {
@@ -147,11 +167,6 @@ export default function LineChartCard({ config }: LineChartCardProps) {
       />
     );
   }
-
-  const groups = groupField
-    ? [...new Set(rows.map((r) => String(r[groupField!] ?? "")))]
-    : [null];
-
   return (
     <div className="flex h-full flex-col">
       {/* Real-time clock indicator */}
@@ -168,8 +183,10 @@ export default function LineChartCard({ config }: LineChartCardProps) {
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
+            accessibilityLayer
             data={pivotedData}
             margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+            isAnimationActive={false}
           >
             <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
             <XAxis
@@ -205,12 +222,14 @@ export default function LineChartCard({ config }: LineChartCardProps) {
                   <Line
                     key={group}
                     type="monotone"
-                    dataKey={group ?? ""}
-                    name={group ?? "Unknown"}
+                    dataKey={group}
+                    name={group}
                     stroke={SERIES_COLORS[idx % SERIES_COLORS.length]}
                     strokeWidth={2}
                     dot={false}
                     activeDot={{ r: 4 }}
+                    connectNulls
+                    isAnimationActive={false}
                   />
                 ))
               : (
@@ -221,6 +240,7 @@ export default function LineChartCard({ config }: LineChartCardProps) {
                     strokeWidth={2}
                     dot={false}
                     activeDot={{ r: 4 }}
+                    isAnimationActive={false}
                   />
                 )}
           </LineChart>
