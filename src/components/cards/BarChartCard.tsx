@@ -15,6 +15,7 @@ import { LoadingState } from "@/components/ui/loading-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { CardConfig, QueryResult } from "@/lib";
+import { fetchCardQuery, queryKeys } from "@/lib/queries";
 
 /** Convert snake_case field name to camelCase (matching Prisma column names). */
 function toCamelCase(snake: string): string {
@@ -29,19 +30,8 @@ export default function BarChartCard({ config }: BarChartCardProps) {
   const { filters } = useDashboardStore();
 
   const { data, isLoading, error, refetch } = useQuery<QueryResult>({
-    queryKey: ["bar", config, filters],
-    queryFn: async () => {
-      const res = await fetch("/api/query", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ config, globalFilters: filters }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Request failed" }));
-        throw new Error(err.error ?? `HTTP ${res.status}`);
-      }
-      return res.json();
-    },
+    queryKey: queryKeys.card("bar", config, filters),
+    queryFn: ({ signal }) => fetchCardQuery(config, filters, signal),
     enabled: !!config.dataSource && !!config.xAxis && !!config.yAxis,
   });
 
