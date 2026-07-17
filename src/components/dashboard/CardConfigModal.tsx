@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useDashboardStore } from "@/store/dashboard-store";
+import { SEVERITY_LEVELS, SEVERITY_LABEL } from "@/lib/severity-color";
+import type { SeverityLevel } from "@/lib/severity-color";
 import type { DashboardCard, TableName } from "@/lib";
 import {
   Dialog,
@@ -20,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SeverityBadge } from "@/components/ui/severity-badge";
 
 // ── Constants ──────────────────────────────────────────────
 
@@ -221,6 +224,36 @@ export default function CardConfigModal({
               </SelectContent>
             </Select>
           </div>
+
+          {/* ── Severity Legend (alerts_events only) ──────── */}
+          {dataSource === "alerts_events" && (
+            <div
+              data-slot="severity-legend"
+              className="flex flex-col gap-1.5 rounded-none border border-border bg-muted/40 p-3"
+            >
+              <p className="text-xs font-medium text-muted-foreground">
+                Alert severity colors
+              </p>
+              <div
+                className="flex flex-wrap items-center gap-2"
+                role="list"
+                aria-label="Alert severity colors"
+              >
+                {SEVERITY_LEVELS.map((level: SeverityLevel) => (
+                  <div
+                    key={level}
+                    role="listitem"
+                    className="flex items-center gap-1.5"
+                  >
+                    <SeverityBadge level={level} />
+                    <span className="text-xs text-muted-foreground">
+                      {SEVERITY_LABEL[level]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* ── Axis Configuration ────────────────────────── */}
           {dataSource && (
