@@ -50,10 +50,10 @@ function FloorPlanSVG({ zones, buildingId, floor }: FloorPlanSVGProps) {
   }, []);
 
   return (
-    <div data-slot="floor-plan-svg" className="relative inline-block">
+    <div data-slot="floor-plan-svg" className="relative overflow-x-auto">
       <svg
         viewBox="0 0 600 420"
-        className="h-auto w-full max-w-[600px]"
+        className="block h-auto min-w-[500px]"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label={`Floor plan for ${buildingId} Floor ${floor}`}
