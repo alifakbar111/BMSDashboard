@@ -22,6 +22,9 @@ import {
   CardAction,
 } from "@/components/ui/card";
 import KPICard from "@/components/cards/KPICard";
+import BarChartCard from "@/components/cards/BarChartCard";
+import LineChartCard from "@/components/cards/LineChartCard";
+import GaugeCard from "@/components/cards/GaugeCard";
 import type { DashboardCard as DashboardCardType } from "@/lib";
 
 interface DashboardCardProps {
@@ -165,12 +168,22 @@ function CardBody({ card }: { card: DashboardCardType }) {
     return <KPICard config={config} />;
   }
 
-  // Placeholder for bar, line, gauge — to be wired in later steps
+  if (config.type === "bar") {
+    return <BarChartCard config={config} />;
+  }
+
+  if (config.type === "line") {
+    return <LineChartCard config={config} />;
+  }
+
+  if (config.type === "gauge") {
+    return <GaugeCard config={config} />;
+  }
+
+  // Fallback — should never reach here with valid config types
   return (
     <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-      {config.type === "bar" && "Bar Chart — configure data source to render"}
-      {config.type === "line" && "Line Chart — configure data source to render"}
-      {config.type === "gauge" && "Gauge — configure data source to render"}
+      Unknown card type
     </div>
   );
 }
