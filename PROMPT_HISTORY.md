@@ -438,7 +438,7 @@ The ui-ux-agent made surgical edits to `src/app/globals.css` and `src/components
 
 | Change | Where |
 |--------|-------|
-| `--color-severity-critical/-warning/-info` tokens (red/ange/blue) | `globals.css` `:root` `@layer base` |
+| `--color-severity-critical/-warning/-info` tokens (red/orange/blue) | `globals.css` `:root` `@layer base` |
 | `@keyframes fadeIn` (opacity 0→1, translateY 8px→0) | `globals.css` |
 | `@media print` rules — hide nav/filters-bar/palette, reset `min-width`, `break-inside: avoid` on cards | `globals.css` |
 

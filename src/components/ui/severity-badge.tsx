@@ -7,21 +7,26 @@ interface SeverityBadgeProps {
   className?: string;
 }
 
-const severityVariants = {
-  critical: "bg-destructive/10 text-destructive border-destructive/20",
-  warning: "bg-warning/10 text-warning border-warning/20",
-  info: "bg-info/10 text-info border-info/20",
+const severityTokens = {
+  critical: "var(--color-severity-critical)",
+  warning: "var(--color-severity-warning)",
+  info: "var(--color-severity-info)",
 } as const;
 
 function SeverityBadge({ level, className }: SeverityBadgeProps) {
+  const token = severityTokens[level];
   return (
     <span
       data-slot="severity-badge"
       className={cn(
         "inline-flex items-center rounded-none border px-2 py-0.5 text-xs font-medium",
-        severityVariants[level],
         className,
       )}
+      style={{
+        color: token,
+        backgroundColor: `color-mix(in srgb, ${token} 10%, transparent)`,
+        borderColor: `color-mix(in srgb, ${token} 20%, transparent)`,
+      }}
     >
       {level}
     </span>
