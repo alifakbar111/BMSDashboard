@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -14,6 +15,7 @@ import { useDashboardStore } from "@/store/dashboard-store";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { getSeverityColor } from "@/lib/severity-color";
 import type { CardConfig, QueryResult } from "@/lib";
 import { fetchCardQuery, queryKeys } from "@/lib/queries";
 
@@ -21,6 +23,9 @@ import { fetchCardQuery, queryKeys } from "@/lib/queries";
 function toCamelCase(snake: string): string {
   return snake.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
 }
+
+/** Default bar color for charts that aren't grouped by alert severity. */
+const DEFAULT_BAR_COLOR = "#3b82f6";
 
 interface BarChartCardProps {
   config: CardConfig;
@@ -66,6 +71,11 @@ export default function BarChartCard({ config }: BarChartCardProps) {
   const xField = toCamelCase(config.xAxis.field);
   const yField = toCamelCase(config.yAxis.field);
 
+  // When the x-axis is the alert severity column, color each bar by its
+  // severity (Critical → red, Warning → orange, Info → blue). Other groupings
+  // (e.g. zone, device_id) fall back to the default blue.
+  const isSeverityAxis = config.xAxis.field === "severity";
+
   return (
     <div className="h-full min-h-[160px] w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -91,7 +101,18 @@ export default function BarChartCard({ config }: BarChartCardProps) {
               border: "1px solid hsl(var(--border))",
             }}
           />
-          <Bar dataKey={yField} fill="#3b82f6" radius={[2, 2, 0, 0]} />
+          <Bar dataKey={yField} fill={DEFAULT_BAR_COLOR} radius={[2, 2, 0, 0]}>
+            {isSeverityAxis &&
+              rows.map((row, idx) => {
+                const severityColor = getSeverityColor(row[xField]);
+                return (
+                  <Cell
+                    key={`bar-${idx}`}
+                    fill={severityColor ?? DEFAULT_BAR_COLOR}
+                  />
+                );
+              })}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>

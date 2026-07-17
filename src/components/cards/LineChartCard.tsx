@@ -17,6 +17,7 @@ import { useDashboardStore } from "@/store/dashboard-store";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import { getSeverityColor } from "@/lib/severity-color";
 import type { CardConfig, QueryResult } from "@/lib";
 import { fetchCardQuery, queryKeys } from "@/lib/queries";
 
@@ -257,20 +258,29 @@ export default function LineChartCard({ config }: LineChartCardProps) {
             )}
 
             {groupField
-              ? groups.map((group, idx) => (
-                  <Line
-                    key={group}
-                    type="monotone"
-                    dataKey={group}
-                    name={group}
-                    stroke={SERIES_COLORS[idx % SERIES_COLORS.length]}
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 4 }}
-                    connectNulls
-                    isAnimationActive={false}
-                  />
-                ))
+              ? groups.map((group, idx) => {
+                  // When grouping by alert severity, color each line by its
+                  // severity (Critical → red, Warning → orange, Info → blue).
+                  // Non-severity groupings fall back to the rotation palette.
+                  const severityColor =
+                    groupField === "severity" ? getSeverityColor(group) : null;
+                  const stroke =
+                    severityColor ?? SERIES_COLORS[idx % SERIES_COLORS.length];
+                  return (
+                    <Line
+                      key={group}
+                      type="monotone"
+                      dataKey={group}
+                      name={group}
+                      stroke={stroke}
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4 }}
+                      connectNulls
+                      isAnimationActive={false}
+                    />
+                  );
+                })
               : (
                   <Line
                     type="monotone"
