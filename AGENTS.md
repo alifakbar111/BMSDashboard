@@ -2,9 +2,15 @@
 
 ## State
 
-Application code exists on `phase/2-infra` branch. Next.js 16 scaffolded with TypeScript, Tailwind v4, Prisma 7, Docker Compose for SQL Server, full audit completed, all 38 findings from the audit fixed. Next phase: backend API.
+Application code on `main` branch. Next.js 16 with TypeScript, Tailwind v4, Prisma 7, Docker Compose for SQL Server — after a full 6-round audit remediation covering 33 tasks across infra, API security, functional bugs, UI/UX, testing, and documentation. Next phase: backend API (continuing).
 
-**Completed phases:** project-setup ✓ → data-explorer ✓ → infra ✓ → full audit + remediation ✓
+**Completed phases:** project-setup ✓ → data-explorer ✓ → infra ✓ → full audit (6 reports) + 33-task remediation ✓ → backend API (partial) ✓
+
+**Audit remediation summary (2026-07-17):**
+- 62 tests passing across 11 test files
+- Zero lint errors
+- Prisma initial migration created
+- All 44+ findings fixed across security, code quality, UI/UX, infra, testing, spec compliance
 
 ## Before building read
 
