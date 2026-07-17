@@ -85,12 +85,25 @@ export async function POST(request: NextRequest) {
         count: "_count",
       };
       const aggField = aggregationMap[cardConfig.aggregation];
-      rows = await (model as any).groupBy({
+      const rawRows = await (model as any).groupBy({
         by: query.groupBy,
         where: query.where,
         [aggField]: { [query.mappedYField]: true },
         orderBy: Object.keys(query.orderBy).length > 0 ? query.orderBy : undefined,
       }) as Record<string, unknown>[];
+      // Flatten Prisma's nested aggregation result (e.g. { _sum: { energyKwh: 83.3 }, deviceType: "HVAC" })
+      // into a flat row { deviceType: "HVAC", energyKwh: 83.3 } so chart components can read the value directly.
+      rows = rawRows.map((row) => {
+        const flat: Record<string, unknown> = {};
+        const aggContainer = row[aggField] as Record<string, unknown> | undefined;
+        if (aggContainer && query.mappedYField) {
+          flat[query.mappedYField] = aggContainer[query.mappedYField] ?? 0;
+        }
+        for (const key of Object.keys(row)) {
+          if (key !== aggField) flat[key] = row[key];
+        }
+        return flat;
+      });
     } else {
       rows = await (model as any).findMany({
         where: query.where,
