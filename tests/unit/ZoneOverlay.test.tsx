@@ -136,3 +136,127 @@ describe("OccupancyTooltip — no-data state", () => {
     expect(screen.queryByText("No data")).toBeNull();
   });
 });
+
+describe("ZoneOverlay — floor-plan requirement coverage", () => {
+  // Requirement: "Displays the zone name and current person count as a label
+  // inside the zone." The label inside the SVG must show the friendly name,
+  // the zone key, and the live person count.
+  it("renders zone name, zone key, and person count for a live (non-stale) zone", () => {
+    render(
+      <svg>
+        <ZoneOverlay
+          zoneData={{
+            zone: "Zone-A",
+            floor: 1,
+            personCount: 12,
+            occupancyRatePercent: 50,
+            timestamp: new Date().toISOString(),
+          }}
+          zoneKey="Zone-A"
+          floor={1}
+          x={0}
+          y={0}
+          width={200}
+          height={100}
+          label="Open Workspace"
+          onHover={() => {}}
+          onLeave={() => {}}
+        />
+      </svg>,
+    );
+    expect(screen.getByText("Open Workspace")).toBeTruthy();
+    expect(screen.getByText("Zone-A")).toBeTruthy();
+    expect(screen.getByText("12 people")).toBeTruthy();
+  });
+
+  // Requirement: "Zones with no recent data (stale > 1 hour) should show a
+  // gray overlay with a 'No data' indicator." The SVG must contain a hatched
+  // pattern fill and an explicit "NO DATA" badge — not just a recolored rect
+  // (which could be mistaken for a low-occupancy green zone).
+  it("renders a hatched gray overlay plus a 'NO DATA' badge for stale zones", () => {
+    const staleTimestamp = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+    const { container } = render(
+      <svg>
+        <ZoneOverlay
+          zoneData={{
+            zone: "Zone-C",
+            floor: 1,
+            personCount: 0,
+            occupancyRatePercent: null,
+            timestamp: staleTimestamp,
+          }}
+          zoneKey="Zone-C"
+          floor={1}
+          x={0}
+          y={0}
+          width={200}
+          height={100}
+          label="Server Room"
+          onHover={() => {}}
+          onLeave={() => {}}
+        />
+      </svg>,
+    );
+
+    // The hatch pattern is defined and applied as a fill on an overlay rect.
+    const pattern = container.querySelector("pattern");
+    expect(pattern).toBeTruthy();
+    const overlayRects = container.querySelectorAll("rect");
+    const hasHatchFill = Array.from(overlayRects).some(
+      (r) => r.getAttribute("fill")?.startsWith("url(#hatch-") === true,
+    );
+    expect(hasHatchFill).toBe(true);
+
+    // "NO DATA" badge text is rendered.
+    expect(screen.getByText("NO DATA")).toBeTruthy();
+  });
+
+  it("does NOT render the hatch overlay or 'NO DATA' badge for live zones", () => {
+    const { container } = render(
+      <svg>
+        <ZoneOverlay
+          zoneData={{
+            zone: "Zone-A",
+            floor: 1,
+            personCount: 5,
+            occupancyRatePercent: 25,
+            timestamp: new Date().toISOString(),
+          }}
+          zoneKey="Zone-A"
+          floor={1}
+          x={0}
+          y={0}
+          width={200}
+          height={100}
+          label="Open Workspace"
+          onHover={() => {}}
+          onLeave={() => {}}
+        />
+      </svg>,
+    );
+    expect(container.querySelector("pattern")).toBeNull();
+    expect(screen.queryByText("NO DATA")).toBeNull();
+    expect(screen.getByText("5 people")).toBeTruthy();
+  });
+
+  it("treats a null zoneData as stale (no-data overlay shown)", () => {
+    const { container } = render(
+      <svg>
+        <ZoneOverlay
+          zoneData={null}
+          zoneKey="Zone-C"
+          floor={1}
+          x={0}
+          y={0}
+          width={200}
+          height={100}
+          label="Server Room"
+          onHover={() => {}}
+          onLeave={() => {}}
+        />
+      </svg>,
+    );
+    expect(container.querySelector("pattern")).toBeTruthy();
+    expect(screen.getByText("NO DATA")).toBeTruthy();
+  });
+});

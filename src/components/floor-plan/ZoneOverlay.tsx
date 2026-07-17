@@ -81,9 +81,15 @@ function ZoneOverlay({
   }, [onLeave]);
 
   const fillOpacity = stale ? 0.3 : 0.6;
+  const cx = x + width / 2;
+  const cy = y + height / 2;
 
   return (
     <g data-slot="zone-overlay">
+      {/*
+        Base color fill. Stale zones get a muted gray; live zones get the
+        occupancy-derived color (green / amber / red).
+      */}
       <rect
         x={x}
         y={y}
@@ -95,33 +101,112 @@ function ZoneOverlay({
         fillOpacity={fillOpacity}
         stroke={stroke}
         strokeWidth={1.5}
+        strokeDasharray={stale ? "4 3" : undefined}
         className="cursor-pointer"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       />
+
+      {/*
+        Stale-zone hatch overlay. A diagonal stripe pattern makes "no data"
+        visually distinct from a low-occupancy (green) zone, so users can tell
+        at a glance whether a zone is genuinely empty or just stale.
+      */}
+      {stale && (
+        <g pointerEvents="none" aria-hidden>
+          <defs>
+            <pattern
+              id={`hatch-${zoneKey}`}
+              patternUnits="userSpaceOnUse"
+              width="8"
+              height="8"
+              patternTransform="rotate(45)"
+            >
+              <line
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="8"
+                stroke="#6b7280"
+                strokeWidth="2"
+                strokeOpacity="0.5"
+              />
+            </pattern>
+          </defs>
+          <rect
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            rx={4}
+            ry={4}
+            fill={`url(#hatch-${zoneKey})`}
+          />
+        </g>
+      )}
+
+      {/* Zone label (friendly name) — always shown */}
       <text
-        x={x + width / 2}
-        y={y + height / 2 - 6}
+        x={cx}
+        y={cy - 14}
         textAnchor="middle"
-        dominantBaseline="auto"
         fill="currentColor"
         fontSize="13"
         fontWeight="600"
         className="pointer-events-none select-none"
       >
-        {stale ? "No data" : label}
+        {label}
       </text>
-      {!stale && zoneData && (
+
+      {/* Zone key (e.g. "Zone-A") — small caption above the person count */}
+      <text
+        x={cx}
+        y={cy + 1}
+        textAnchor="middle"
+        fill="currentColor"
+        fontSize="9"
+        className="pointer-events-none select-none fill-muted-foreground"
+      >
+        {zoneKey}
+      </text>
+
+      {/* Person count (live) or "No data" badge (stale) */}
+      {stale ? (
+        <g pointerEvents="none">
+          <rect
+            x={cx - 32}
+            y={cy + 6}
+            width={64}
+            height={14}
+            rx={2}
+            ry={2}
+            fill="#6b7280"
+            fillOpacity="0.9"
+          />
+          <text
+            x={cx}
+            y={cy + 16}
+            textAnchor="middle"
+            fill="#ffffff"
+            fontSize="9"
+            fontWeight="700"
+            letterSpacing="0.5"
+            className="select-none"
+          >
+            NO DATA
+          </text>
+        </g>
+      ) : (
         <text
-          x={x + width / 2}
-          y={y + height / 2 + 12}
+          x={cx}
+          y={cy + 16}
           textAnchor="middle"
-          dominantBaseline="hanging"
           fill="currentColor"
           fontSize="11"
+          fontWeight="500"
           className="pointer-events-none select-none"
         >
-          {zoneData.personCount ?? "—"} people
+          {zoneData?.personCount ?? "—"} people
         </text>
       )}
     </g>
