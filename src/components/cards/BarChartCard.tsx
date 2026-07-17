@@ -77,9 +77,10 @@ export default function BarChartCard({ config }: BarChartCardProps) {
   const yField = toCamelCase(config.yAxis.field);
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full min-h-[160px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
+          accessibilityLayer
           data={rows}
           margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
         >

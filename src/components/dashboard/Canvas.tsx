@@ -67,7 +67,9 @@ export default function Canvas() {
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-          <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
+          <div
+            className="grid auto-rows-[minmax(180px,auto)] grid-cols-1 gap-4 p-4 md:grid-cols-2"
+          >
             {cards.map((card) => (
               <DashboardCard
                 key={card.id}

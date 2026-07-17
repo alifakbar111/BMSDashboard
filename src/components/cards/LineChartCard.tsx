@@ -180,13 +180,12 @@ export default function LineChartCard({ config }: LineChartCardProps) {
         </span>
       </div>
 
-      <div className="flex-1">
+      <div className="min-h-[160px] flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             accessibilityLayer
             data={pivotedData}
             margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
-            isAnimationActive={false}
           >
             <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
             <XAxis
