@@ -14,13 +14,12 @@ import {
   QueryResultSchema,
   ErrorResponseSchema,
   ErrorDetailResponseSchema,
-  OccupancyQueryParamsSchema,
 } from "../src/lib/schemas";
 
 /** Convert a Zod schema to a plain JSON Schema object (strips $schema). */
 function toSchema<T>(schema: { toJSONSchema(): T }): T {
   const raw = schema.toJSONSchema() as Record<string, unknown>;
-  const { $schema, ...rest } = raw;
+  const rest = raw;
   return rest as T;
 }
 

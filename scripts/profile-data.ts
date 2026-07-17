@@ -1,13 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-interface ColumnProfile {
-  name: string;
-  nonNull: number;
-  total: number;
-  uniqueValues: number;
-  sampleValues: string[];
-}
+
 
 function profileCSV(filePath: string): void {
   const content = fs.readFileSync(filePath, "utf-8").trim();

@@ -8,7 +8,7 @@ Application code exists on `phase/2-infra` branch. Next.js 16 scaffolded with Ty
 
 ## Before building read
 
-`Technical Test/TechnicalTest.md` — the full spec. All requirements and evaluation criteria live here.
+`TechnicalTest/TechnicalTest.md` — the full spec. All requirements and evaluation criteria live here.
 
 ## Build order
 
@@ -18,7 +18,7 @@ Each phase depends on the previous. Do not parallelize.
 
 ## Data
 
-CSV source files are in `Technical Test/data/`. A `data/` directory exists at project root with copies of the CSVs. See `Technical Test/data/DATA_DICTIONARY.md` for field definitions.
+CSV source files are in `TechnicalTest/data/`. A `data/` directory exists at project root with copies of the CSVs. See `TechnicalTest/data/DATA_DICTIONARY.md` for field definitions.
 
 ## Commands
 
@@ -200,7 +200,7 @@ No body text in the commit. If the subject needs more info, put it in the scope.
 
 ## Gotchas
 
-- `Technical Test/` directory name has a space — quote paths when referencing
+- `TechnicalTest/` directory name has no space — no need to quote paths
 - `.opencode/.gitignore` ignores `node_modules`, `package.json`, `package-lock.json`, `bun.lock`, `.gitignore` itself
 - Two agent copies exist (`.opencode/agents/` and `.agents/`) — keep `.opencode/agents/` as source of truth
 - Git repo initialized on branch `phase/2-infra`. Never commit to `main`/`master` directly.

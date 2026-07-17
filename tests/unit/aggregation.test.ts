@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { aggregate } from "../../src/lib/aggregation";
+import { aggregate } from "@/lib/aggregation";
 
 describe("aggregate", () => {
   const values = [10, 20, 30, 40, 50];
