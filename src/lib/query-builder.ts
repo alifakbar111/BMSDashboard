@@ -39,7 +39,9 @@ export function buildWhereClause(
     where.timestamp = { gte: new Date(filters.customStart), lte: new Date(filters.customEnd) };
   }
   if (cardFilter) {
-    if (cardFilter.operator === "eq") {
+    if (cardFilter.value === "" || cardFilter.value === undefined || cardFilter.value === null) {
+      // skip empty/null/undefined filter values — they are semantically "no filter"
+    } else if (cardFilter.operator === "eq") {
       where[cardFilter.field] = cardFilter.value;
     } else {
       const prismaOp = parseOperatorToPrisma(cardFilter.operator);
@@ -167,6 +169,7 @@ export function buildQuery(
     select[xField] = true;
     select[yField] = true;
     if (groupField) {
+      groupBy.push(xField);
       groupBy.push(groupField);
       select[groupField] = true;
     }
