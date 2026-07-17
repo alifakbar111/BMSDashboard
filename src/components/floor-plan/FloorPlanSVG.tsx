@@ -90,6 +90,8 @@ function FloorPlanSVG({ zones, buildingId, floor }: FloorPlanSVGProps) {
             <ZoneOverlay
               key={zoneKey}
               zoneData={zoneData}
+              zoneKey={zoneKey}
+              floor={floor}
               x={layout.x}
               y={layout.y}
               width={layout.width}

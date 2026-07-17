@@ -27,9 +27,8 @@ function OccupancyTooltip({ data, pageX, pageY }: OccupancyTooltipProps) {
   const capacity = data.zoneCapacity ?? null;
   const co2 = data.co2Ppm ?? null;
   const aqi = data.airQualityIndex ?? null;
-  const updated = data.timestamp
-    ? new Date(data.timestamp).toLocaleString()
-    : "—";
+  const hasData = data.timestamp != null;
+  const updated = hasData ? new Date(data.timestamp!).toLocaleString() : "—";
 
   return (
     <div
@@ -39,7 +38,14 @@ function OccupancyTooltip({ data, pageX, pageY }: OccupancyTooltipProps) {
       )}
       style={{ left: pageX + 12, top: pageY - 10 }}
     >
-      <p className="mb-1.5 font-heading text-sm font-semibold">{data.zone}</p>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <p className="font-heading text-sm font-semibold">{data.zone}</p>
+        {!hasData && (
+          <span className="rounded-none border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            No data
+          </span>
+        )}
+      </div>
       <table className="w-full text-xs">
         <tbody>
           <tr>

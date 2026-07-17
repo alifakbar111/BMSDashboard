@@ -36,6 +36,8 @@ function getOccupancyColors(
 
 interface ZoneOverlayProps {
   zoneData: ZoneData | null;
+  zoneKey: string;
+  floor: number;
   x: number;
   y: number;
   width: number;
@@ -47,6 +49,8 @@ interface ZoneOverlayProps {
 
 function ZoneOverlay({
   zoneData,
+  zoneKey,
+  floor,
   x,
   y,
   width,
@@ -61,11 +65,15 @@ function ZoneOverlay({
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<SVGRectElement>) => {
-      if (zoneData) {
-        onHover(zoneData, e.pageX, e.pageY);
-      }
+      // Always fire onHover, even when the zone has no occupancy data,
+      // so the user gets feedback (a "no data" tooltip) instead of silence.
+      onHover(
+        zoneData ?? { zone: zoneKey, floor, timestamp: null },
+        e.pageX,
+        e.pageY,
+      );
     },
-    [zoneData, onHover],
+    [zoneData, zoneKey, floor, onHover],
   );
 
   const handleMouseLeave = useCallback(() => {
