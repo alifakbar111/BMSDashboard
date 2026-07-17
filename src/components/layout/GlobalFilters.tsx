@@ -118,9 +118,18 @@ export default function GlobalFilters() {
               }
               onChange={(e) => {
                 const val = e.target.value;
-                setFilters({
-                  customStart: val ? new Date(val + "T00:00:00").toISOString() : null,
-                });
+                // <input type="date"> returns "YYYY-MM-DD" with no time. Treat
+                // it as the start of the user's local day so the filter matches
+                // what they see in the picker (avoids the timezone shift bug
+                // where `new Date("YYYY-MM-DDT00:00:00")` rolls back one day in
+                // negative-offset zones like UTC-7).
+                if (!val) {
+                  setFilters({ customStart: null });
+                  return;
+                }
+                const [y, m, d] = val.split("-").map(Number);
+                const local = new Date(y, m - 1, d, 0, 0, 0, 0);
+                setFilters({ customStart: local.toISOString() });
               }}
             />
           </div>
@@ -139,9 +148,15 @@ export default function GlobalFilters() {
               }
               onChange={(e) => {
                 const val = e.target.value;
-                setFilters({
-                  customEnd: val ? new Date(val + "T00:00:00").toISOString() : null,
-                });
+                // End-of-day (23:59:59.999 local) so the "To" date is inclusive
+                // — otherwise all of that day's data would be excluded.
+                if (!val) {
+                  setFilters({ customEnd: null });
+                  return;
+                }
+                const [y, m, d] = val.split("-").map(Number);
+                const localEnd = new Date(y, m - 1, d, 23, 59, 59, 999);
+                setFilters({ customEnd: localEnd.toISOString() });
               }}
             />
           </div>
