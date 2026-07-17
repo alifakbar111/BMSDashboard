@@ -113,7 +113,7 @@ describe("LineChartCard — Rules of Hooks", () => {
     await new Promise((r) => setTimeout(r, 50));
 
     // The bug surfaces as a console.error call from React about hook order.
-    const hookOrderWarnings = consoleErrorSpy.mock.calls.filter((args) => {
+    const hookOrderWarnings = consoleErrorSpy.mock.calls.filter((args: unknown[]) => {
       const msg = String(args[0] ?? "");
       return (
         msg.includes("order of Hooks") ||
@@ -192,7 +192,7 @@ describe("LineChartCard — Rules of Hooks", () => {
 
     // The render-loop bug surfaces as a console.error from React
     // ("Maximum update depth exceeded" or "Too many re-renders").
-    const loopWarnings = consoleErrorSpy.mock.calls.filter((args) => {
+    const loopWarnings = consoleErrorSpy.mock.calls.filter((args: unknown[]) => {
       const msg = String(args[0] ?? "");
       return (
         msg.includes("Maximum update depth") ||
