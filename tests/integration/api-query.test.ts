@@ -242,7 +242,7 @@ describe("POST /api/query - Integration", () => {
       expect(response.status).toBe(200);
       expect(json).toHaveProperty("data");
       expect(json).toHaveProperty("aggregated");
-      expect(json.aggregated).toBeCloseTo(79.475, 2);
+      expect(json.aggregated).toBe(79.48);
       expect(json.data).toEqual(mockData);
 
       expect(prisma.occupancy.findMany).toHaveBeenCalledWith({
