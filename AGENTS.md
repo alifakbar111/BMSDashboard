@@ -2,12 +2,12 @@
 
 ## State
 
-Application code on `phase/4-frontend` branch. Next.js 16, TypeScript, Tailwind v4, Prisma 7, Docker Compose for SQL Server. Phase 4 (frontend UI) complete and pending merge to `main`. Next phase: Phase 5 polish (UX/testing/docs).
+Application code on `main` branch. Next.js 16, TypeScript, Tailwind v4, Prisma 7, Docker Compose for SQL Server. Phase 4 (frontend UI) merged to `main`. Next phase: Phase 5 polish (UX/testing/docs).
 
 **Completed phases:** project-setup ✓ → data-explorer ✓ → infra ✓ → full audit (6 reports) + 33-task remediation ✓ → backend API (partial) ✓ → frontend (Phase 4) ✓
 
 **Phase 4 + audit remediation summary (2026-07-17):**
-- 81 tests passing across 12 test files
+- 120 tests passing across 18 test files
 - Zero lint errors
 - Prisma initial migration created
 - All 44+ findings fixed across security, code quality, UI/UX, infra, testing, spec compliance
