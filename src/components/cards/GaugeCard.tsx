@@ -8,6 +8,29 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { CardConfig, QueryResult } from "@/lib";
 import { fetchCardQuery, queryKeys } from "@/lib/queries";
 
+/**
+ * Map a raw value/target pair to 0–100 fractions for a radial gauge.
+ * - Guards against `max === min` by treating the range as 1
+ * - Clamps to [0, 100] so out-of-range values stay inside the arc
+ * - Returns 0 for any non-finite input (NaN/Infinity)
+ *
+ * Matches the math previously inlined in the old GaugeSvg component
+ * (see git history of this file).
+ */
+export function computeGaugeFractions(args: {
+  value: number;
+  min: number;
+  max: number;
+  target: number;
+}): { fraction: number; targetFraction: number } {
+  const range = (args.max - args.min) || 1;
+  const rawFraction = ((args.value - args.min) / range) * 100;
+  const rawTarget = ((args.target - args.min) / range) * 100;
+  const clamp = (n: number) =>
+    Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 0;
+  return { fraction: clamp(rawFraction), targetFraction: clamp(rawTarget) };
+}
+
 interface GaugeChartProps {
   config: CardConfig;
 }
