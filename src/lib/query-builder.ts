@@ -1,4 +1,4 @@
-import type { CardConfig, GlobalFilters, FilterConfig, TableName } from "./types";
+import type { CardConfig, GlobalFilters, FilterConfig, TableName } from "./schemas";
 
 function parseOperatorToPrisma(operator: "eq" | "neq" | "gt" | "gte" | "lt" | "lte"): string {
   const map: Record<string, string> = {
@@ -12,9 +12,12 @@ function parseOperatorToPrisma(operator: "eq" | "neq" | "gt" | "gte" | "lt" | "l
   return map[operator] || "equals";
 }
 
+/** Internal type that accepts a mapped filter where field has been transformed to camelCase. */
+type MappedFilter = Omit<FilterConfig, "field"> & { field: string };
+
 export function buildWhereClause(
   filters: GlobalFilters,
-  cardFilter?: FilterConfig,
+  cardFilter?: FilterConfig | MappedFilter,
 ): Record<string, unknown> {
   const where: Record<string, unknown> = {};
 
@@ -50,7 +53,10 @@ export function buildWhereClause(
 export function mapFieldName(field: string, table: TableName): string {
   const fieldMappings: Record<TableName, Record<string, string>> = {
     energy_consumption: {
+      timestamp: "timestamp",
       building_id: "buildingId",
+      floor: "floor",
+      zone: "zone",
       device_type: "deviceType",
       device_id: "deviceId",
       energy_kwh: "energyKwh",
@@ -62,7 +68,10 @@ export function mapFieldName(field: string, table: TableName): string {
       source_system: "sourceSystem",
     },
     hvac_performance: {
+      timestamp: "timestamp",
       building_id: "buildingId",
+      floor: "floor",
+      zone: "zone",
       unit_id: "unitId",
       setpoint_temp_c: "setpointTempC",
       actual_temp_c: "actualTempC",
@@ -96,7 +105,11 @@ export function mapFieldName(field: string, table: TableName): string {
       acknowledged_by: "acknowledgedBy",
     },
   };
-  return fieldMappings[table]?.[field] ?? field;
+  const mapped = fieldMappings[table]?.[field];
+  if (!mapped) {
+    throw new Error(`Unknown field '${field}' for table '${table}'`);
+  }
+  return mapped;
 }
 
 function getPrismaModel(table: TableName): string {

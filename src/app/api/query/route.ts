@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { buildQuery } from "@/lib/query-builder";
 import { aggregate } from "@/lib/aggregation";
-import { QueryRequestBodySchema, CardConfigSchema } from "@/lib/schemas";
-import type { AggregationType } from "@/lib/types";
+import { QueryRequestBodySchema } from "@/lib/schemas";
+import type { AggregationType } from "@/lib/schemas";
+
+const prismaModels = {
+  energyConsumption: prisma.energyConsumption,
+  hvacPerformance: prisma.hvacPerformance,
+  occupancy: prisma.occupancy,
+  alertsEvent: prisma.alertsEvent,
+} as const;
+
+type PrismaModelName = keyof typeof prismaModels;
 
 function getNumericValue(row: Record<string, unknown>, field: string): number {
   const val = row[field];
@@ -27,6 +36,22 @@ export function processQueryResult(
 }
 
 export async function POST(request: NextRequest) {
+  // CSRF check
+  const origin = request.headers.get("origin");
+  const allowedOrigins = [
+    "http://localhost:3000",
+    process.env.APP_URL,
+  ].filter(Boolean);
+  if (origin && !allowedOrigins.includes(origin)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // Body size limit
+  const contentLength = parseInt(request.headers.get("content-length") ?? "0", 10);
+  if (contentLength > 100_000) {
+    return NextResponse.json({ error: "Request too large" }, { status: 413 });
+  }
+
   try {
     let body: unknown;
     try {
@@ -45,31 +70,47 @@ export async function POST(request: NextRequest) {
 
     const { config: cardConfig, globalFilters } = parsed.data;
     const query = buildQuery(cardConfig, globalFilters);
-    const model = (prisma as any)[query.modelName];
+    const model = prismaModels[query.modelName as PrismaModelName];
     if (!model) {
       return NextResponse.json({ error: `Unknown model: ${query.modelName}` }, { status: 500 });
     }
 
-    const rows = await model.findMany({
-      where: query.where,
-      select: Object.keys(query.select).length > 0 ? query.select : undefined,
-      orderBy: Object.keys(query.orderBy).length > 0 ? query.orderBy : undefined,
-    });
-
-    const rawData = rows as unknown as Record<string, unknown>[];
+    let rows: Record<string, unknown>[];
+    if (query.groupBy.length > 0 && query.mappedYField) {
+      const aggregationMap: Record<string, string> = {
+        sum: "_sum",
+        avg: "_avg",
+        min: "_min",
+        max: "_max",
+        count: "_count",
+      };
+      const aggField = aggregationMap[cardConfig.aggregation];
+      rows = await (model as any).groupBy({
+        by: query.groupBy,
+        where: query.where,
+        [aggField]: { [query.mappedYField]: true },
+        orderBy: Object.keys(query.orderBy).length > 0 ? query.orderBy : undefined,
+      }) as Record<string, unknown>[];
+    } else {
+      rows = await (model as any).findMany({
+        where: query.where,
+        select: Object.keys(query.select).length > 0 ? query.select : undefined,
+        orderBy: Object.keys(query.orderBy).length > 0 ? query.orderBy : undefined,
+      }) as unknown as Record<string, unknown>[];
+    }
 
     if (cardConfig.type === "kpi" || cardConfig.type === "gauge") {
       // Use the already-mapped camelCase field name from buildQuery
       const yField = query.mappedYField ?? "";
-      const result = processQueryResult(rawData, cardConfig.aggregation, yField);
+      const result = processQueryResult(rows, cardConfig.aggregation, yField);
       return NextResponse.json(result);
     }
 
-    return NextResponse.json({ data: rawData, aggregated: null });
+    return NextResponse.json({ data: rows, aggregated: null });
   } catch (e) {
     console.error("Query API error:", e);
     return NextResponse.json(
-      { error: "Failed to execute query", details: (e as Error).message },
+      { error: "Failed to execute query" },
       { status: 500 },
     );
   }

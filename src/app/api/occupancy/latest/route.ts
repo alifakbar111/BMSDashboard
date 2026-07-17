@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { OccupancyQueryParamsSchema } from "@/lib/schemas";
 
 export function getLatestPerZone(rows: Record<string, unknown>[]): Record<string, unknown>[] {
   const zoneMap = new Map<string, Record<string, unknown>>();
@@ -16,19 +17,17 @@ export function getLatestPerZone(rows: Record<string, unknown>[]): Record<string
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const buildingId = searchParams.get("building_id");
-  const floor = searchParams.get("floor");
-
-  if (!buildingId || !floor) {
+  const parsed = OccupancyQueryParamsSchema.safeParse({
+    building_id: searchParams.get("building_id"),
+    floor: searchParams.get("floor"),
+  });
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "Missing required parameters: building_id, floor" },
+      { error: "Invalid parameters", details: parsed.error.issues },
       { status: 400 },
     );
   }
-  const floorNum = parseInt(floor, 10);
-  if (isNaN(floorNum)) {
-    return NextResponse.json({ error: "Floor must be a number" }, { status: 400 });
-  }
+  const { building_id: buildingId, floor: floorNum } = parsed.data;
 
   try {
     const rows = await prisma.occupancy.findMany({

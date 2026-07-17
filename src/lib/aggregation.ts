@@ -1,4 +1,4 @@
-import type { AggregationType } from "./types";
+import type { AggregationType } from "./schemas";
 
 export function aggregate(values: number[], type: AggregationType): number {
   if (values.length === 0 && type !== "count") return 0;

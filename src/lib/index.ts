@@ -9,4 +9,4 @@ export type {
   GlobalFilters,
   QueryResult,
   DashboardCard,
-} from "./types";
+} from "./schemas";
