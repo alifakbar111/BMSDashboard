@@ -421,3 +421,48 @@ The orchestrator loaded the `frontend` agent and dispatched the 10 Phase 4 tasks
 - Phase 4 frontend is complete and ready for merge to `main`.
 - Next step is Phase 5 polish (UX refinements, additional testing, and documentation).
 - Created this documentation update to reflect the new state in `AGENTS.md`, `README.md`, `PROMPT_HISTORY.md`, and `TASKS.md`.
+
+---
+
+## Session 10: Phase 5 Polish (2026-07-17)
+
+Branch: `phase/5-polish`. This session delivered the final UX polish and documentation pass (plan Task 23 + remediation of remaining spec gaps).
+
+**Prompt 10.1 — Alert severity colors, animation, and print styles**
+
+> Apply the polish layer: alert severity color variables (Critical=red, Warning=orange, Info=blue), a fadeIn keyframe for card add/remove transitions, and print/PDF export styles.
+
+**Response Summary:**
+
+The ui-ux-agent made surgical edits to `src/app/globals.css` and `src/components/layout/GlobalFilters.tsx`:
+
+| Change | Where |
+|--------|-------|
+| `--color-severity-critical/-warning/-info` tokens (red/ange/blue) | `globals.css` `:root` `@layer base` |
+| `@keyframes fadeIn` (opacity 0→1, translateY 8px→0) | `globals.css` |
+| `@media print` rules — hide nav/filters-bar/palette, reset `min-width`, `break-inside: avoid` on cards | `globals.css` |
+
+**Commit:** `9e91c3d feat(ui): add alert severity colors, fadeIn animation, and print styles`
+
+**Prompt 10.2 — Architecture brief and Phase 5 documentation**
+
+> Create ARCHITECTURE.md grounding the plan's Task 23 outline in the actual implemented architecture, then append this phase to PROMPT_HISTORY.md and verify README.md still covers all features.
+
+**Response Summary:**
+
+- **ARCHITECTURE.md** (new, ~120 lines) — went beyond the plan's stub outline to document the real implementation: Zustand persistence semantics (`setFilters` deliberately non-persisting), React Query `queryKey`-based auto-refetch, the full SQL→card data-flow diagram, Prisma `groupBy` result flattening, dual severity-color systems, stale-zone hatch overlay, and the `@prisma/adapter-mssql` singleton. Sections: Overview; State Management; Data Flow; Drag-and-Drop; Dynamic Axis Binding; Database Schema; SVG Floor Plan; Security; Testing; Key Design Decisions.
+- **PROMPT_HISTORY.md** — this appended Phase 5 entry.
+- **README.md** — added missing Features bullets for alert severity colors, animated transitions, and print/PDF export (other features were already covered by the Phase 4 documentation pass).
+
+**Final verification results:**
+- **Tests:** ✅ 120 passed across 18 test files (unchanged — docs only)
+- **Lint:** ✅ Zero errors (`pnpm lint`)
+- **Commit:** `docs: add architecture brief and document phase 5 polish`
+
+**My Decision:**
+
+- ARCHITECTURE.md is grounded in the actual source (read `query-builder.ts`, `query/route.ts`, `dashboard-store.ts`, the card components, floor-plan components, `schemas.ts`, and `prisma/schema.prisma`) rather than restating the plan's abstract outline — so it documents what was built, not what was planned.
+- Kept the brief to ~120 lines: thorough enough to satisfy the scored deliverable without bloating into a walkthrough of every component.
+- README needed surgical additions only — print/PDF export and animated transitions were the gaps; severity colors were already in Design Decisions but now have a Features bullet too.
+
+**Completed phases:** project-setup ✓ → data-explorer ✓ → infra ✓ → full audit + 33-task remediation ✓ → backend API ✓ → frontend (Phase 4) ✓ → polish (Phase 5) ✓

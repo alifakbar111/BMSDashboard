@@ -119,5 +119,8 @@ pnpm dev
 - **Dynamic data source and axis selection** — Each card can bind to a different table/metric and choose its own X/Y axes
 - **Global filters** — Building, floor, and time range filters applied across all cards
 - **SVG floor plan** — Interactive floor plan with occupancy overlays and tooltips
+- **Alert severity colors** — Critical (red), Warning (orange), Info (blue) via dedicated CSS tokens and `SeverityBadge`
 - **Dark mode toggle and responsive layout** — System-aware theme with manual toggle and 1280px desktop-optimized shell
 - **Dashboard layout persistence** — Save/load layouts from `localStorage`, export/import JSON, duplicate and resize cards
+- **Animated transitions** — `fadeIn` keyframe on card add/remove for smooth visual feedback
+- **Print/PDF export** — `@media print` styles hide nav/filters and preserve card break boundaries for clean exports
