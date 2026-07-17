@@ -64,41 +64,17 @@ export default function LineChartCard({ config }: LineChartCardProps) {
     return () => clearInterval(id);
   }, []);
 
-  if (!config.dataSource || !config.xAxis || !config.yAxis) {
-    return null;
-  }
-
-  if (isLoading) {
-    return <LoadingState variant="text" count={2} />;
-  }
-
-  if (error) {
-    return (
-      <ErrorState
-        title="Failed to load"
-        message={error.message}
-        onRetry={() => refetch()}
-      />
-    );
-  }
+  // Derive field names unconditionally so hooks below can be called in a stable order.
+  // (All hooks must run on every render — see Rules of Hooks.)
+  const xField = config.xAxis ? toCamelCase(config.xAxis.field) : null;
+  const yField = config.yAxis ? toCamelCase(config.yAxis.field) : null;
+  const groupField = config.groupBy ? toCamelCase(config.groupBy.field) : null;
 
   const rows = data?.data ?? [];
-  if (rows.length === 0) {
-    return (
-      <EmptyState
-        title="No data"
-        description="No results match the current filters."
-      />
-    );
-  }
-
-  const xField = toCamelCase(config.xAxis.field);
-  const yField = toCamelCase(config.yAxis.field);
-  const groupField = config.groupBy ? toCamelCase(config.groupBy.field) : null;
 
   // Pivot data when groupBy is set: each row becomes { xField, group1: y, group2: y, ... }
   const pivotedData = useMemo(() => {
-    if (!groupField) return rows;
+    if (!groupField || !xField || !yField) return rows as Record<string, unknown>[];
 
     const map = new Map<string, Record<string, unknown>>();
     // Preserve insertion order
@@ -117,15 +93,11 @@ export default function LineChartCard({ config }: LineChartCardProps) {
     return keys.map((k) => map.get(k)!);
   }, [rows, groupField, xField, yField]);
 
-  const groups = groupField
-    ? [...new Set(rows.map((r) => String(r[groupField] ?? "")))]
-    : [null];
-
   // Find the data point closest to "now" for the ReferenceLine
   const closestX = useMemo(() => {
-    if (pivotedData.length === 0) return null;
+    if (!xField || pivotedData.length === 0) return null;
     const nowMs = now.getTime();
-    let closest = pivotedData[0][xField];
+    let closest: string | number = pivotedData[0][xField] as string | number;
     let minDiff = Infinity;
 
     for (const row of pivotedData) {
@@ -140,12 +112,45 @@ export default function LineChartCard({ config }: LineChartCardProps) {
         const diff = Math.abs(ts - nowMs);
         if (diff < minDiff) {
           minDiff = diff;
-          closest = raw;
+          closest = raw as string | number;
         }
       }
     }
-    return closest as string | number;
+    return closest;
   }, [pivotedData, now, xField]);
+
+  // ---- Conditional renders below this line (all hooks are now above) ----
+
+  if (!config.dataSource || !config.xAxis || !config.yAxis || !xField || !yField) {
+    return null;
+  }
+
+  if (isLoading) {
+    return <LoadingState variant="text" count={2} />;
+  }
+
+  if (error) {
+    return (
+      <ErrorState
+        title="Failed to load"
+        message={error.message}
+        onRetry={() => refetch()}
+      />
+    );
+  }
+
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        title="No data"
+        description="No results match the current filters."
+      />
+    );
+  }
+
+  const groups = groupField
+    ? [...new Set(rows.map((r) => String(r[groupField!] ?? "")))]
+    : [null];
 
   return (
     <div className="flex h-full flex-col">
