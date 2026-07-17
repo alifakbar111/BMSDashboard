@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaMssql } from "@prisma/adapter-mssql";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { parseConnectionUrl } from "../src/lib/db-config";
 import * as fs from "fs";
 import * as path from "path";
 import { parse } from "csv-parse/sync";
@@ -15,24 +16,7 @@ if (!connectionUrl) {
   process.exit(1);
 }
 
-const getParam = (url: string, key: string): string => {
-  const match = url.match(new RegExp(`${key}=([^;]+)`));
-  return match ? match[1] : "";
-};
-const serverMatch = connectionUrl.match(/sqlserver:\/\/([^:;]+)/);
-const portMatch = connectionUrl.match(/:(\d+);/);
-
-const config = {
-  server: serverMatch?.[1] ?? "localhost",
-  port: portMatch ? parseInt(portMatch[1], 10) : 1433,
-  database: getParam(connectionUrl, "database") || "bms_dashboard",
-  user: getParam(connectionUrl, "user") || "SA",
-  password: getParam(connectionUrl, "password") || "",
-  options: {
-    encrypt: getParam(connectionUrl, "encrypt") === "true",
-    trustServerCertificate: getParam(connectionUrl, "trustServerCertificate") !== "false",
-  },
-};
+const config = parseConnectionUrl(connectionUrl);
 const adapter = new PrismaMssql(config);
 const prisma = new PrismaClient({ adapter });
 
@@ -41,21 +25,21 @@ const DATA_DIR = path.resolve(process.cwd(), "data");
 // ---------------------------------------------------------------------------
 // Safe number helpers
 // ---------------------------------------------------------------------------
-function safeInt(val: string, fallback = 0): number {
+export function safeInt(val: string, fallback = 0): number {
   const n = parseInt(val, 10);
   return isNaN(n) ? fallback : n;
 }
 
-function safeFloat(val: string, fallback = 0): number {
+export function safeFloat(val: string, fallback = 0): number {
   const n = parseFloat(val);
   return isNaN(n) ? fallback : n;
 }
 
-function nullableString(val: string): string | null {
+export function nullableString(val: string): string | null {
   return val === "" ? null : val;
 }
 
-function nullableDate(val: string): Date | null {
+export function nullableDate(val: string): Date | null {
   if (val === "") return null;
   const d = new Date(val);
   return isNaN(d.getTime()) ? null : d;
@@ -111,7 +95,7 @@ async function seedTable<T extends Record<string, unknown>>(
 // ---------------------------------------------------------------------------
 // Row mappers
 // ---------------------------------------------------------------------------
-function mapEnergyConsumption(r: Record<string, string>) {
+export function mapEnergyConsumption(r: Record<string, string>) {
   return {
     timestamp: new Date(r.timestamp),
     buildingId: r.building_id,

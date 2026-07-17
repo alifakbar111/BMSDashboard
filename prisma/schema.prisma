@@ -70,6 +70,7 @@ model Occupancy {
   exitCount            Int    @map("exit_count")
 
   @@index([buildingId, floor, zone, timestamp])
+  @@index([buildingId, floor, timestamp])
   @@index([timestamp])
   @@map("occupancy")
 }
