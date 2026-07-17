@@ -33,6 +33,62 @@ const SERIES_COLORS = [
   "#ec4899",
 ];
 
+/**
+ * Custom Recharts tooltip that caps its height and scrolls when there are many
+ * series. Without this, the default tooltip grows unbounded and can cover the
+ * entire chart for queries with many groups (e.g. 10+ devices).
+ */
+export function ScrollableTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload?: any[];
+  label?: string | number;
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+
+  return (
+    <div
+      data-testid="scrollable-tooltip"
+      className="max-h-[200px] max-w-[260px] overflow-y-auto rounded-none border border-border bg-background text-xs shadow-sm"
+      style={{ fontSize: 12 }}
+    >
+      {label !== undefined && label !== null && (
+        <div className="sticky top-0 border-b border-border bg-background px-2 py-1 font-medium">
+          {String(label)}
+        </div>
+      )}
+      <ul className="m-0 list-none p-0">
+        {payload.map((entry, idx) => (
+          <li
+            key={`${entry.name ?? "item"}-${idx}`}
+            className="flex items-center justify-between gap-3 px-2 py-0.5"
+          >
+            <span className="flex items-center gap-1.5 truncate">
+              <span
+                aria-hidden
+                className="inline-block size-2 shrink-0"
+                style={{ background: entry.color }}
+              />
+              <span className="truncate text-muted-foreground">
+                {entry.name ?? entry.dataKey}
+              </span>
+            </span>
+            <span className="shrink-0 font-mono tabular-nums">
+              {typeof entry.value === "number"
+                ? entry.value.toFixed(2)
+                : String(entry.value ?? "")}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 interface LineChartCardProps {
   config: CardConfig;
 }
@@ -197,13 +253,7 @@ export default function LineChartCard({ config }: LineChartCardProps) {
               tick={{ fontSize: 11 }}
               className="text-muted-foreground"
             />
-            <Tooltip
-              contentStyle={{
-                fontSize: 12,
-                borderRadius: 0,
-                border: "1px solid hsl(var(--border))",
-              }}
-            />
+            <Tooltip content={<ScrollableTooltip />} cursor={{ stroke: "var(--border)" }} />
             {groupField && <Legend />}
 
             {closestX !== null && (
