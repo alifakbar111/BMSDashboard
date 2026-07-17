@@ -46,6 +46,45 @@ export function nullableDate(val: string): Date | null {
 }
 
 // ---------------------------------------------------------------------------
+// Timestamp shift
+//
+// The CSVs in `data/` are static snapshots whose latest rows are far in the
+// past (e.g. 2025-06-01). The floor-plan UI treats any data older than one
+// hour as "stale" (grey NO DATA badge), so the seeded timestamps are shifted
+// so the latest row in the reference table lands on "now". All other rows
+// shift by the same offset, preserving the relative time distribution.
+//
+// `TIME_OFFSET_MS` is computed once in `main()` and reused by every mapper so
+// that all four tables stay in sync (cross-table queries assume the same
+// timeline).
+// ---------------------------------------------------------------------------
+let TIME_OFFSET_MS = 0;
+
+function computeTimeOffset(): number {
+  const referenceRows = parseCsv<Record<string, string>>("occupancy.csv");
+  if (referenceRows.length === 0) return 0;
+  const maxTimestamp = referenceRows.reduce((max, r) => {
+    const t = new Date(r.timestamp).getTime();
+    return Number.isFinite(t) && t > max ? t : max;
+  }, 0);
+  if (!Number.isFinite(maxTimestamp) || maxTimestamp === 0) return 0;
+  return Date.now() - maxTimestamp;
+}
+
+function shiftDate(val: string): Date {
+  const t = new Date(val).getTime();
+  if (!Number.isFinite(t)) return new Date(NaN);
+  return new Date(t + TIME_OFFSET_MS);
+}
+
+function shiftNullableDate(val: string): Date | null {
+  if (val === "") return null;
+  const t = new Date(val).getTime();
+  if (!Number.isFinite(t)) return null;
+  return new Date(t + TIME_OFFSET_MS);
+}
+
+// ---------------------------------------------------------------------------
 // Generic CSV parser (RFC 4180 via csv-parse)
 // ---------------------------------------------------------------------------
 function parseCsv<T extends Record<string, string>>(filename: string): T[] {
@@ -94,10 +133,14 @@ async function seedTable<T extends Record<string, unknown>>(
 
 // ---------------------------------------------------------------------------
 // Row mappers
+//
+// Every mapper applies `TIME_OFFSET_MS` (set in `main()`) to its timestamp
+// column. `mapAlertsEvent` also shifts `resolvedAt` so alert lifecycle data
+// stays consistent with the rest of the timeline.
 // ---------------------------------------------------------------------------
 export function mapEnergyConsumption(r: Record<string, string>) {
   return {
-    timestamp: new Date(r.timestamp),
+    timestamp: shiftDate(r.timestamp),
     buildingId: r.building_id,
     floor: safeInt(r.floor),
     zone: r.zone,
@@ -115,7 +158,7 @@ export function mapEnergyConsumption(r: Record<string, string>) {
 
 function mapHvacPerformance(r: Record<string, string>) {
   return {
-    timestamp: new Date(r.timestamp),
+    timestamp: shiftDate(r.timestamp),
     buildingId: r.building_id,
     floor: safeInt(r.floor),
     zone: r.zone,
@@ -135,7 +178,7 @@ function mapHvacPerformance(r: Record<string, string>) {
 
 function mapOccupancy(r: Record<string, string>) {
   return {
-    timestamp: new Date(r.timestamp),
+    timestamp: shiftDate(r.timestamp),
     buildingId: r.building_id,
     floor: safeInt(r.floor),
     zone: r.zone,
@@ -153,7 +196,7 @@ function mapOccupancy(r: Record<string, string>) {
 
 function mapAlertsEvent(r: Record<string, string>) {
   return {
-    timestamp: new Date(r.timestamp),
+    timestamp: shiftDate(r.timestamp),
     buildingId: r.building_id,
     floor: safeInt(r.floor),
     zone: r.zone,
@@ -167,7 +210,7 @@ function mapAlertsEvent(r: Record<string, string>) {
     threshold: safeFloat(r.threshold),
     unit: r.unit,
     durationMinutes: safeInt(r.duration_minutes),
-    resolvedAt: nullableDate(r.resolved_at),
+    resolvedAt: shiftNullableDate(r.resolved_at),
     status: r.status,
     acknowledgedBy: nullableString(r.acknowledged_by),
   };
@@ -178,6 +221,13 @@ function mapAlertsEvent(r: Record<string, string>) {
 // ---------------------------------------------------------------------------
 async function main() {
   console.log("🌱 Seeding database…\n");
+
+  // Anchor the latest row in the reference table (occupancy) to "now" so
+  // downstream UIs see fresh data. Every other table is shifted by the
+  // same offset to keep cross-table joins consistent.
+  TIME_OFFSET_MS = computeTimeOffset();
+  const offsetHours = (TIME_OFFSET_MS / 3_600_000).toFixed(2);
+  console.log(`  ⏱  Shifting timestamps by ${offsetHours}h to anchor latest row to now\n`);
 
   const counts: Record<string, number> = {};
 
