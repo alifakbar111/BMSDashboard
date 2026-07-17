@@ -377,6 +377,7 @@
         ]
       },
       "CardConfig": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "id": {
@@ -398,19 +399,12 @@
             "description": "Card display title"
           },
           "dataSource": {
-            "anyOf": [
-              {
-                "type": "string",
-                "enum": [
-                  "energy_consumption",
-                  "hvac_performance",
-                  "occupancy",
-                  "alerts_events"
-                ]
-              },
-              {
-                "type": "null"
-              }
+            "type": "string",
+            "enum": [
+              "energy_consumption",
+              "hvac_performance",
+              "occupancy",
+              "alerts_events"
             ],
             "description": "Data source table name"
           },
@@ -421,6 +415,52 @@
                 "properties": {
                   "field": {
                     "type": "string",
+                    "enum": [
+                      "timestamp",
+                      "building_id",
+                      "floor",
+                      "zone",
+                      "device_type",
+                      "device_id",
+                      "energy_kwh",
+                      "power_kw",
+                      "voltage_v",
+                      "current_a",
+                      "power_factor",
+                      "cost_usd",
+                      "source_system",
+                      "unit_id",
+                      "mode",
+                      "setpoint_temp_c",
+                      "actual_temp_c",
+                      "outdoor_temp_c",
+                      "humidity_percent",
+                      "airflow_m3h",
+                      "filter_status_percent",
+                      "compressor_hours",
+                      "energy_efficiency_ratio",
+                      "operating_status",
+                      "zone_capacity",
+                      "person_count",
+                      "occupancy_rate_percent",
+                      "co2_ppm",
+                      "temperature_c",
+                      "air_quality_index",
+                      "entry_count",
+                      "exit_count",
+                      "alert_id",
+                      "severity",
+                      "category",
+                      "alarm_type",
+                      "description",
+                      "value",
+                      "threshold",
+                      "unit",
+                      "duration_minutes",
+                      "resolved_at",
+                      "status",
+                      "acknowledged_by"
+                    ],
                     "description": "Column name"
                   },
                   "label": {
@@ -447,6 +487,52 @@
                 "properties": {
                   "field": {
                     "type": "string",
+                    "enum": [
+                      "timestamp",
+                      "building_id",
+                      "floor",
+                      "zone",
+                      "device_type",
+                      "device_id",
+                      "energy_kwh",
+                      "power_kw",
+                      "voltage_v",
+                      "current_a",
+                      "power_factor",
+                      "cost_usd",
+                      "source_system",
+                      "unit_id",
+                      "mode",
+                      "setpoint_temp_c",
+                      "actual_temp_c",
+                      "outdoor_temp_c",
+                      "humidity_percent",
+                      "airflow_m3h",
+                      "filter_status_percent",
+                      "compressor_hours",
+                      "energy_efficiency_ratio",
+                      "operating_status",
+                      "zone_capacity",
+                      "person_count",
+                      "occupancy_rate_percent",
+                      "co2_ppm",
+                      "temperature_c",
+                      "air_quality_index",
+                      "entry_count",
+                      "exit_count",
+                      "alert_id",
+                      "severity",
+                      "category",
+                      "alarm_type",
+                      "description",
+                      "value",
+                      "threshold",
+                      "unit",
+                      "duration_minutes",
+                      "resolved_at",
+                      "status",
+                      "acknowledged_by"
+                    ],
                     "description": "Column name"
                   },
                   "label": {
@@ -484,6 +570,52 @@
                 "properties": {
                   "field": {
                     "type": "string",
+                    "enum": [
+                      "timestamp",
+                      "building_id",
+                      "floor",
+                      "zone",
+                      "device_type",
+                      "device_id",
+                      "energy_kwh",
+                      "power_kw",
+                      "voltage_v",
+                      "current_a",
+                      "power_factor",
+                      "cost_usd",
+                      "source_system",
+                      "unit_id",
+                      "mode",
+                      "setpoint_temp_c",
+                      "actual_temp_c",
+                      "outdoor_temp_c",
+                      "humidity_percent",
+                      "airflow_m3h",
+                      "filter_status_percent",
+                      "compressor_hours",
+                      "energy_efficiency_ratio",
+                      "operating_status",
+                      "zone_capacity",
+                      "person_count",
+                      "occupancy_rate_percent",
+                      "co2_ppm",
+                      "temperature_c",
+                      "air_quality_index",
+                      "entry_count",
+                      "exit_count",
+                      "alert_id",
+                      "severity",
+                      "category",
+                      "alarm_type",
+                      "description",
+                      "value",
+                      "threshold",
+                      "unit",
+                      "duration_minutes",
+                      "resolved_at",
+                      "status",
+                      "acknowledged_by"
+                    ],
                     "description": "Column name"
                   },
                   "label": {
@@ -510,6 +642,52 @@
                 "properties": {
                   "field": {
                     "type": "string",
+                    "enum": [
+                      "timestamp",
+                      "building_id",
+                      "floor",
+                      "zone",
+                      "device_type",
+                      "device_id",
+                      "energy_kwh",
+                      "power_kw",
+                      "voltage_v",
+                      "current_a",
+                      "power_factor",
+                      "cost_usd",
+                      "source_system",
+                      "unit_id",
+                      "mode",
+                      "setpoint_temp_c",
+                      "actual_temp_c",
+                      "outdoor_temp_c",
+                      "humidity_percent",
+                      "airflow_m3h",
+                      "filter_status_percent",
+                      "compressor_hours",
+                      "energy_efficiency_ratio",
+                      "operating_status",
+                      "zone_capacity",
+                      "person_count",
+                      "occupancy_rate_percent",
+                      "co2_ppm",
+                      "temperature_c",
+                      "air_quality_index",
+                      "entry_count",
+                      "exit_count",
+                      "alert_id",
+                      "severity",
+                      "category",
+                      "alarm_type",
+                      "description",
+                      "value",
+                      "threshold",
+                      "unit",
+                      "duration_minutes",
+                      "resolved_at",
+                      "status",
+                      "acknowledged_by"
+                    ],
                     "description": "Column to filter on"
                   },
                   "operator": {
@@ -527,7 +705,8 @@
                   "value": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1
                       },
                       {
                         "type": "number"
@@ -627,6 +806,7 @@
         ]
       },
       "GlobalFilters": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "buildingId": {
@@ -672,24 +852,28 @@
           "customStart": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
               },
               {
                 "type": "null"
               }
             ],
-            "description": "Custom range start"
+            "description": "Custom range start (ISO 8601)"
           },
           "customEnd": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
               },
               {
                 "type": "null"
               }
             ],
-            "description": "Custom range end"
+            "description": "Custom range end (ISO 8601)"
           }
         },
         "required": [
@@ -702,6 +886,7 @@
         "additionalProperties": false
       },
       "QueryResult": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "data": {
@@ -732,6 +917,7 @@
         "additionalProperties": false
       },
       "ErrorResponse": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "error": {
@@ -744,6 +930,7 @@
         "additionalProperties": false
       },
       "ErrorDetailResponse": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "error": {
