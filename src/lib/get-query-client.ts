@@ -25,6 +25,8 @@ function makeQueryClient(): QueryClient {
         retry: 1,
         // During SSR we don't want a failed prefetch to throw into the render
         // tree — we'd rather render with no data and let the client refetch.
+        // On the client we still surface errors via the `error` state.
+        throwOnError: isServer,
       },
     },
   });

@@ -8,6 +8,10 @@ import FloorPlanClient from "./FloorPlanClient";
 const DEFAULT_BUILDING = "BLD-001";
 const DEFAULT_FLOOR = 1;
 
+// Skip static export — the prefetch requires a live /api/occupancy/latest
+// route handler, which is unavailable in the build sandbox. Render on demand.
+export const dynamic = "force-dynamic";
+
 export default async function FloorPlanPage() {
   const queryClient = getQueryClient();
 
