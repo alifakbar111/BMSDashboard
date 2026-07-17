@@ -72,6 +72,7 @@ export default function DashboardCard({ card, onConfigure }: DashboardCardProps)
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
+        animation: "fadeIn 0.2s ease-out",
       }}
     >
       <Card className="h-full">
