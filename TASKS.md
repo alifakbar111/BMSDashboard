@@ -43,3 +43,16 @@
 - [x] ~~**Task 31: Add `cn()` utility tests** — testing-agent (P3)~~
 - [x] ~~**Task 32: Create initial Prisma migration** — infra-agent (P1)~~
 - [x] ~~**Task 33: Update AGENTS.md path reference** — document-writer-agent (P3)~~
+
+### 2026-07-17 — Phase 4 Frontend Build
+
+- [x] ~~**Task 10: Zustand Dashboard Store** — frontend-agent~~
+- [x] ~~**Task 11: DnD Canvas + CardPalette + DashboardCard** — frontend-agent~~
+- [x] ~~**Task 12: CardConfigModal dynamic axis selection** — frontend-agent~~
+- [x] ~~**Task 13: KPI Card + UI primitives** — frontend-agent~~
+- [x] ~~**Task 14: BarChartCard** — frontend-agent~~
+- [x] ~~**Task 15: LineChartCard with real-time clock** — frontend-agent~~
+- [x] ~~**Task 16: GaugeCard SVG** — frontend-agent~~
+- [x] ~~**Task 17: GlobalFilters component** — frontend-agent~~
+- [x] ~~**Task 18: Navbar + StoreInitializer + layout wiring** — frontend-agent~~
+- [x] ~~**Task 19: Floor Plan page with SVG overlays** — frontend-agent~~

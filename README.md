@@ -14,8 +14,9 @@ src/
     page.tsx              # Main dashboard page
   components/
     cards/                # Card type components (KPI, Bar, Line, Gauge)
-    dashboard/            # Dashboard builder components (Canvas, FilterBar, CardConfigModal)
-    layout/               # Layout primitives (ThemeProvider, QueryProvider, ThemeToggle)
+    dashboard/            # Dashboard builder components (Canvas, CardPalette, DashboardCard, CardConfigModal)
+    floor-plan/           # SVG floor plan components (FloorPlanSVG, ZoneOverlay, OccupancyTooltip)
+    layout/               # Layout primitives (Navbar, StoreInitializer, ThemeProvider, QueryProvider, ThemeToggle, GlobalFilters)
     ui/                   # Shared UI primitives (shadcn/ui based)
   generated/
     prisma/               # Generated Prisma client (gitignored)
@@ -35,7 +36,6 @@ prisma/
 tests/                    # Unit and integration tests
 docs/
   audits/                 # Security, code quality, UI/UX audit reports
-tests/                    # Unit and integration tests
 data/                     # CSV source files (copied from TechnicalTest/data/)
 ```
 
@@ -112,3 +112,12 @@ pnpm dev
 - **Dark mode** — Via `next-themes` with system preference detection
 - **Alert severity colors** — Critical (red), Warning (orange), Info (blue) per spec
 - **Prisma 7 config pattern** — URL not in schema; provided via `prisma.config.ts` and `DATABASE_URL` env var
+
+## Features
+
+- **Drag-and-drop dashboard builder** — Compose dashboards with KPI, Bar, Line, and Gauge cards using `dnd-kit`
+- **Dynamic data source and axis selection** — Each card can bind to a different table/metric and choose its own X/Y axes
+- **Global filters** — Building, floor, and time range filters applied across all cards
+- **SVG floor plan** — Interactive floor plan with occupancy overlays and tooltips
+- **Dark mode toggle and responsive layout** — System-aware theme with manual toggle and 1280px desktop-optimized shell
+- **Dashboard layout persistence** — Save/load layouts from `localStorage`, export/import JSON, duplicate and resize cards

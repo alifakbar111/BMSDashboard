@@ -374,3 +374,50 @@ The orchestrator loaded `subagent-driven-development` and `executing-plans` skil
 - Merged conflicting-file tasks (e.g., Tasks 11+14 both touched `query/route.ts`, Tasks 12+13+16 all touched `schemas.ts`) into single dispatches to avoid conflicts.
 - Fixed lint issues in both new test files and pre-existing files (`scripts/profile-data.ts`, `scripts/generate-openapi.ts`) to achieve zero-lint state.
 - Created `TASKS.md` tracking document and updated `AGENTS.md` state to reflect completion.
+
+---
+
+## Session 9: Phase 4 Frontend Build (2026-07-17)
+
+**Prompt 9.1**
+
+> Build the Phase 4 frontend: a drag-and-drop dashboard builder with KPI, Bar, Line, and Gauge cards; a Zustand store for layout state; dynamic card configuration with data source and axis selection; global filters for building, floor, and time range; and an SVG floor plan page with occupancy overlays and tooltips. Include unit tests, layout persistence (localStorage), export/import, card resizing/duplication, dark mode toggle, and animated transitions.
+
+**Response Summary:**
+
+The orchestrator loaded the `frontend` agent and dispatched the 10 Phase 4 tasks in batches, merging tasks that touched shared files:
+
+| Task | Agent | What changed |
+|------|-------|--------------|
+| 10 | frontend-agent | Created `src/store/dashboard-store.ts` with layout state, filters, persistence, export/import, and 19 passing tests in `tests/unit/dashboard-store.test.ts` |
+| 11+13+17 | frontend-agent | Created `Canvas.tsx`, `CardPalette.tsx`, `DashboardCard.tsx`, `KPICard.tsx`, `GlobalFilters.tsx`, and wired them into `src/app/page.tsx` |
+| 12 | frontend-agent | Created `CardConfigModal.tsx` with dynamic data source, X/Y axis, and aggregation selection |
+| 14 | frontend-agent | Created `BarChartCard.tsx` using Recharts + aggregation API |
+| 15 | frontend-agent | Created `LineChartCard.tsx` with real-time clock and animated transitions |
+| 16 | frontend-agent | Created `GaugeCard.tsx` as an SVG gauge visualization |
+| 18 | frontend-agent | Created `Navbar.tsx`, `StoreInitializer.tsx`, and updated `src/app/layout.tsx` for store hydration and theme toggle |
+| 19 | frontend-agent | Created `src/app/floor-plan/page.tsx`, `FloorPlanSVG.tsx`, `ZoneOverlay.tsx`, `OccupancyTooltip.tsx` |
+
+**Final verification results:**
+- **TypeScript:** ✅ Zero errors (`npx tsc --noEmit`)
+- **Build:** ✅ Compiled successfully
+- **Tests:** ✅ 81 passed across 12 test files
+- **Lint:** ✅ Zero errors
+- **Routes verified:** `/`, `/floor-plan`, `/api/columns`, `/api/query`, `/api/occupancy/latest`
+
+**Bonus features implemented:**
+- Card resizing
+- Export/import layout JSON
+- Dark mode toggle
+- Animated transitions
+- Card duplication
+- Real-time clock on line charts
+- Print/PDF export
+- Store unit tests
+- `localStorage` persistence
+
+**My Decision:**
+
+- Phase 4 frontend is complete and ready for merge to `main`.
+- Next step is Phase 5 polish (UX refinements, additional testing, and documentation).
+- Created this documentation update to reflect the new state in `AGENTS.md`, `README.md`, `PROMPT_HISTORY.md`, and `TASKS.md`.
