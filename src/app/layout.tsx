@@ -58,7 +58,7 @@ export default function RootLayout({
         >
           <QueryProvider>
             <TooltipProvider>
-              <div id="main-content" className="flex flex-1 flex-col">
+              <div id="main-content" tabIndex={-1} role="main" className="flex flex-1 flex-col">
                 {children}
               </div>
             </TooltipProvider>

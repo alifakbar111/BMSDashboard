@@ -13,7 +13,7 @@ export default function APIDocsPage() {
           Interactive API documentation. Use the{" "}
           <strong>Try it out</strong> button to test endpoints directly.
         </p>
-        <div className="rounded-lg border bg-white shadow-sm">
+        <div className="rounded-lg border bg-card shadow-sm dark:bg-gray-900">
           <SwaggerUI
             spec={spec as Record<string, unknown>}
             displayRequestDuration={true}

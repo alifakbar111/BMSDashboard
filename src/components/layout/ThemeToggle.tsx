@@ -15,9 +15,9 @@ function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon" disabled aria-label="Toggle theme">
-        <div className="size-4 animate-pulse rounded-none bg-muted" />
-      </Button>
+      <div className="size-11 flex items-center justify-center" aria-hidden="true">
+        <div className="size-4 rounded-none bg-muted" />
+      </div>
     );
   }
 

@@ -6,6 +6,8 @@ interface LoadingStateProps {
   variant?: "card" | "list" | "text";
 }
 
+const skeletonWidths = ["75%", "60%", "85%", "70%", "90%", "55%"];
+
 function LoadingState({ className, count = 3, variant = "card" }: LoadingStateProps) {
   if (variant === "text") {
     return (
@@ -14,7 +16,7 @@ function LoadingState({ className, count = 3, variant = "card" }: LoadingStatePr
           <div
             key={i}
             className="h-4 animate-pulse rounded-none bg-muted"
-            style={{ width: `${70 + Math.random() * 30}%` }}
+            style={{ width: skeletonWidths[i % skeletonWidths.length] }}
           />
         ))}
       </div>
