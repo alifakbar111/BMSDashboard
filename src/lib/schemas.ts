@@ -49,7 +49,7 @@ export const AxisConfigSchema = z.object({
 export const FilterConfigSchema = z.object({
   field: z.enum(VALID_FIELDS).describe("Column to filter on"),
   operator: OperatorSchema,
-  value: z.union([z.string(), z.number()]).describe("Filter value"),
+  value: z.union([z.string().min(1), z.number()]).describe("Filter value"),
 });
 
 export const CardConfigSchema = z.object({

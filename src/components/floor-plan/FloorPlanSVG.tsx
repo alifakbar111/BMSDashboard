@@ -53,7 +53,7 @@ function FloorPlanSVG({ zones, buildingId, floor }: FloorPlanSVGProps) {
     <div data-slot="floor-plan-svg" className="relative overflow-x-auto">
       <svg
         viewBox="0 0 600 420"
-        className="block h-auto min-w-[500px]"
+        className="block h-auto min-w-3xl"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label={`Floor plan for ${buildingId} Floor ${floor}`}

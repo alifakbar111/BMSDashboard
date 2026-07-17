@@ -60,7 +60,7 @@ export default function FloorPlanPage() {
     : null;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-6">
+    <main className="mx-auto flex min-h-screen flex-col px-4 py-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="font-heading text-xl font-semibold">Floor Plan</h1>
