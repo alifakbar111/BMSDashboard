@@ -59,7 +59,7 @@ export async function fetchOccupancy(
     floor: String(floor),
   });
   const res = await fetch(`/api/occupancy/latest?${params}`, {
-    ...(signal ? { signal } : {}),
+    signal,
   });
   if (!res.ok) {
     throw new Error(`Failed to fetch occupancy data: ${res.statusText}`);

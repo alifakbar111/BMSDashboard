@@ -7,13 +7,6 @@ import type { ZoneData } from "@/components/floor-plan/OccupancyTooltip";
 import { fetchOccupancy, queryKeys } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
-interface OccupancyResponse {
-  buildingId: string;
-  floor: number;
-  zones: ZoneData[];
-  timestamp: string;
-}
-
 const BUILDING_FLOORS = [
   { buildingId: "BLD-001", floor: 1, label: "BLD-001 F1" },
   { buildingId: "BLD-001", floor: 2, label: "BLD-001 F2" },
