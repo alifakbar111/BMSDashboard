@@ -118,7 +118,7 @@ Expected: two lines like
 pnpm test
 ```
 
-Expected: 120 tests pass across 18 files (same as the pre-change baseline). ApexCharts is installed but not yet imported anywhere, so the suite is unaffected.
+Expected: 152 tests pass across 26 files (the current `main` baseline as of 2026-07-18). ApexCharts is installed but not yet imported anywhere, so the suite is unaffected.
 
 - [ ] **Step 5: Commit**
 
@@ -723,7 +723,7 @@ Expected: PASS — 8 math tests + 6 rendering tests = 14 tests green.
 pnpm test
 ```
 
-Expected: 120 existing tests + 14 new tests = **134 tests pass** across 19 files. Zero new failures.
+Expected: 152 existing tests + 14 new tests = **166 tests pass** across 27 files. Zero new failures.
 
 - [ ] **Step 6: Run the linter**
 
@@ -813,7 +813,7 @@ pnpm lint && pnpm test && pnpm build
 
 Expected:
 - `pnpm lint` → 0 errors
-- `pnpm test` → 134 tests pass
+- `pnpm test` → 166 tests pass
 - `pnpm build` → `✓ Compiled successfully`, gauge chunk emitted, no type errors
 
 - [ ] **Step 2: Verify the gauge is the only consumer of ApexCharts in the codebase**
