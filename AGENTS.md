@@ -144,34 +144,49 @@ User request
 
 ### Real example from this session (audit remediation)
 
-Request: "Execute the audit fix plan" (18 tasks across 5 domains)
+Request: "Execute the audit fix plan" (33 tasks across 6 rounds)
 
 ```
 Round 1 (parallel, no dependencies)
-  ├── Task 1: infra-agent — Fix Docker image tag + healthcheck
-  ├── Task 2: security-auditor-agent — Remove hardcoded password, create .env.example
-  └── Task 3: infra-agent — Add @@index to Prisma models
+  ├── Task 1: infra-agent — Fix .gitignore
+  ├── Task 2: infra-agent — Copy DATA_DICTIONARY.md
+  ├── Task 3: code-review-agent — Remove unused deps
+  └── Task 4: infra-agent — Add Occupancy index
 
 Round 2 (parallel, independent files)
-  ├── Task 4: infra-agent — Create PrismaClient singleton
-  ├── Task 5: infra-agent — Rewrite seed script with csv-parse
-  ├── Task 6: code-review-agent — Fix package.json deps
-  ├── Task 7: code-review-agent — Update radix-ui imports
-  └── Task 8: ui-ux-agent — Fix globals.css
+  ├── Task 5:  security-auditor-agent — Fix error leakage
+  ├── Task 6:  security-auditor-agent — Add security headers
+  ├── Task 7:  security-auditor-agent — Add CSRF + body limits
+  ├── Task 8:  backend-agent — Zod field allowlist
+  ├── Task 9:  backend-agent — Zod for occupancy params
+  └── Task 10: backend-agent — mapFieldName throw on unknown
 
-Round 3 (parallel, all files independent)
-  ├── Task 9:  ui-ux-agent — Create EmptyState/LoadingState/ErrorState
-  ├── Task 10: ui-ux-agent — Fix button a11y (focus rings, touch targets)
-  ├── Task 11: code-review-agent — Remove duplicate DialogFooter close button
-  ├── Task 12: code-review-agent — Update tsconfig target
-  ├── Task 13: ui-ux-agent — Add skip-to-content link
-  ├── Task 14: security-auditor-agent — Add security warning to chart
-  └── Task 15: ui-ux-agent — Create ThemeToggle
+Round 3 (merged conflicting-files tasks)
+  ├── Task 11+14: backend-agent — groupBy fix + type-safe models
+  ├── Task 12+13+16: code-review-agent — dual types + test imports
+  ├── Task 15: infra-agent — db-config utility
+  └── Task 17: code-review-agent — unused import
 
-Round 4 (parallel, final tasks)
-  ├── Task 16: document-writer-agent — Create README.md
-  ├── Task 17: testing-agent — Write seed parser tests
-  └── Task 18: testing-agent — Write PrismaClient singleton tests
+Round 4 (parallel, all files independent)
+  ├── Task 18+24: ui-ux-agent — Skip-link focus + ARIA landmarks
+  ├── Task 19: ui-ux-agent — Docs dark mode
+  ├── Task 20: ui-ux-agent — Focus rings
+  ├── Task 21: ui-ux-agent — ThemeToggle hydration
+  ├── Task 22: ui-ux-agent — LoadingState deterministic
+  ├── Task 23: ui-ux-agent — Disabled button
+  └── Task 25: ui-ux-agent — SeverityBadge
+
+Round 5 (parallel, all files independent)
+  ├── Task 26: testing-agent — Zod schema tests
+  ├── Task 27: testing-agent — API integration tests
+  ├── Task 28: testing-agent — Seed mapper tests
+  ├── Task 29: testing-agent — query-builder tests
+  ├── Task 30: testing-agent — CI pipeline
+  └── Task 31: testing-agent — cn() utility tests
+
+Round 6 (parallel)
+  ├── Task 32: infra-agent — Initial migration
+  └── Task 33: document-writer-agent — AGENTS.md fix
 ```
 
 ### Batch dispatch rule
@@ -209,6 +224,6 @@ No body text in the commit. If the subject needs more info, put it in the scope.
 - `TechnicalTest/` directory name has no space — no need to quote paths
 - `.opencode/.gitignore` ignores `node_modules`, `package.json`, `package-lock.json`, `bun.lock`, `.gitignore` itself
 - Two agent copies exist (`.opencode/agents/` and `.agents/`) — keep `.opencode/agents/` as source of truth
-- Git repo initialized on branch `phase/2-infra`. Never commit to `main`/`master` directly.
+- Git repo usually works on feature branches (`phase/*`). Current work merged to `main`.
 - Audit reports live in `docs/audits/YYYY-MM-DD/` — these ARE committed (human-facing docs)
 - All components use `cn()`, `data-slot`, named function exports, and `@/*` alias — preserve these patterns

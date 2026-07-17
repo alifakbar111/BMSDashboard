@@ -329,3 +329,48 @@ This document is the result. It captures:
 **Critical fixes required: 7**
 **High priority fixes required: 10**
 **Total actionable findings: 26**
+
+---
+
+## Session 8: Fix Plan Execution (2026-07-17)
+
+**Prompt 8.1**
+
+> Execute the fix plan — 33 tasks across 6 rounds
+
+**Response Summary:**
+
+The orchestrator loaded `subagent-driven-development` and `executing-plans` skills, then executed the 33-task fix plan in 6 rounds using parallel dispatch:
+
+| Round | Tasks | Focus | Dispatch Strategy |
+|-------|-------|-------|-------------------|
+| 1 | 1-4 | Infrastructure & config | 4 parallel agents (different files) |
+| 2 | 5-10 | API security | 5 parallel agents (different files) |
+| 3 | 11-17 | Functional bugs & code quality | 3 parallel agents (merged conflicting files) |
+| 4 | 18-25 | UI/UX fixes | 7 parallel agents (all different files) |
+| 5 | 26-31 | Testing | 6 parallel agents (all different files) |
+| 6 | 32-33 | Migration & docs | 2 parallel agents |
+
+**Key changes across 38 files:**
+
+| Domain | What changed |
+|--------|-------------|
+| **Infra** | `.gitignore` deny-list, unused deps removed, Occupancy index, shared `db-config.ts`, initial migration |
+| **Security** | Error leakage fixed, security headers (CSP/X-Frame-Options), CSRF + body limits, Zod field allowlist |
+| **Backend** | `groupBy` aggregation for bar/line charts, type-safe model registry, `mapFieldName` throws on unknown, typed model access |
+| **Code quality** | Dual type system eliminated (`types.ts` deleted → all types from `schemas.ts`), unused imports fixed |
+| **UI/UX** | Skip-link focus, dark mode, focus rings, ThemeToggle hydration, LoadingState deterministic, disabled button, ARIA landmarks, SeverityBadge component |
+| **Testing** | 10 new test files across schema, API, seed, query-builder, cn utility + CI pipeline |
+
+**Final verification results:**
+- **Build:** ✅ Compiled successfully (Turbopack, 10.8s)
+- **Tests:** ✅ 62 passed across 11 test files
+- **Lint:** ✅ Zero errors
+- **Commits:** 4 conventional commits on `main`
+
+**My Decision:**
+
+- Used Subagent-Driven Development: fresh subagent per task batch, task review after each batch, broad final review.
+- Merged conflicting-file tasks (e.g., Tasks 11+14 both touched `query/route.ts`, Tasks 12+13+16 all touched `schemas.ts`) into single dispatches to avoid conflicts.
+- Fixed lint issues in both new test files and pre-existing files (`scripts/profile-data.ts`, `scripts/generate-openapi.ts`) to achieve zero-lint state.
+- Created `TASKS.md` tracking document and updated `AGENTS.md` state to reflect completion.

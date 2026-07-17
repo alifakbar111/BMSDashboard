@@ -24,16 +24,19 @@ src/
     aggregation.ts        # Data aggregation helpers
     prisma.ts             # PrismaClient singleton
     query-builder.ts      # Dynamic query construction with column allowlisting
-    types.ts              # Shared TypeScript types
+    schemas.ts            # Shared TypeScript types (Zod schemas + inferred types)
     utils.ts              # Utility functions (cn)
   store/                  # Zustand state management
     dashboard-store.ts    # Dashboard card layout state
 prisma/
   schema.prisma           # Database schema (4 models)
   seed.ts                 # Database seed script
-  config.ts               # Prisma 7 config file
+  migrations/             # Version-controlled migrations
 tests/                    # Unit and integration tests
-data/                     # CSV source files (copied from Technical Test/data/)
+docs/
+  audits/                 # Security, code quality, UI/UX audit reports
+tests/                    # Unit and integration tests
+data/                     # CSV source files (copied from TechnicalTest/data/)
 ```
 
 ## Tech Stack
@@ -75,8 +78,8 @@ docker compose up -d
 # 4. Generate Prisma client
 pnpm prisma:generate
 
-# 5. Push schema to database
-pnpm prisma:push
+# 5. Run database migration
+pnpm prisma:migrate
 
 # 6. Seed database
 pnpm prisma:seed
@@ -96,7 +99,8 @@ pnpm dev
 | `pnpm format` | Format code with oxfmt |
 | `pnpm prisma:generate` | Generate Prisma client |
 | `pnpm prisma:push` | Push schema to DB |
-| `pnpm prisma:migrate` | Create a migration |
+| `pnpm prisma:migrate` | Create and apply a migration |
+| `pnpm gen:openapi` | Generate OpenAPI spec |
 | `pnpm prisma:seed` | Seed database |
 | `pnpm prisma:studio` | Open Prisma Studio |
 
