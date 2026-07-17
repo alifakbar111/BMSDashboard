@@ -41,6 +41,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-severity-critical: var(--severity-critical);
+  --color-severity-warning: var(--severity-warning);
+  --color-severity-info: var(--severity-info);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -68,6 +71,9 @@
   --destructive: oklch(0.577 0.245 27.325);
   --warning: oklch(0.7 0.19 60);
   --info: oklch(0.6 0.19 250);
+  --severity-critical: #ef4444;
+  --severity-warning: #f97316;
+  --severity-info: #3b82f6;
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
@@ -105,9 +111,9 @@
   --destructive: oklch(0.704 0.191 22.216);
   --warning: oklch(0.75 0.17 60);
   --info: oklch(0.65 0.16 250);
-  --color-severity-critical: oklch(0.704 0.191 22.216);
-  --color-severity-warning: oklch(0.75 0.17 60);
-  --color-severity-info: oklch(0.65 0.16 250);
+  --severity-critical: oklch(0.704 0.191 22.216);
+  --severity-warning: oklch(0.75 0.17 60);
+  --severity-info: oklch(0.65 0.16 250);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
@@ -139,11 +145,7 @@
 }
 
 @layer base {
-  :root {
-    --color-severity-critical: #ef4444;
-    --color-severity-warning: #f97316;
-    --color-severity-info: #3b82f6;
-  }
+  /* Severity variables are defined in @theme inline → :root/.dark above. */
 }
 
 /* Animated transitions — card add/remove */
