@@ -2,9 +2,9 @@
 
 ## State
 
-Application code on `main` branch. Next.js 16, TypeScript, Tailwind v4, Prisma 7, Docker Compose for SQL Server. Phase 4 (frontend UI) merged to `main`. Next phase: Phase 5 polish (UX/testing/docs).
+Application code on `main` branch. Next.js 16, TypeScript, Tailwind v4, Prisma 7, Docker Compose for SQL Server. Phase 5 polish, SSR prefetch, and the gauge ApexCharts refactor are all merged to `main` — no active feature branch.
 
-**Completed phases:** project-setup ✓ → data-explorer ✓ → infra ✓ → full audit (6 reports) + 33-task remediation ✓ → backend API (partial) ✓ → frontend (Phase 4) ✓
+**Completed phases:** project-setup ✓ → data-explorer ✓ → infra ✓ → full audit (6 reports) + 33-task remediation ✓ → backend API (partial) ✓ → frontend (Phase 4) ✓ → polish (Phase 5) ✓ → SSR prefetch (PR #5) ✓ → gauge ApexCharts refactor (PR #6) ✓
 
 **Phase 4 + audit remediation summary (2026-07-17):**
 - 120 tests passing across 18 test files
@@ -18,6 +18,12 @@ Application code on `main` branch. Next.js 16, TypeScript, Tailwind v4, Prisma 7
 - Dashboard layout persistence (localStorage), export/import, card resizing, duplication, animated transitions
 - Dark mode toggle and responsive layout shell
 
+**Post-Phase-4 summary (2026-07-17 → 2026-07-18):**
+- **Phase 5 polish (PR #4):** alert severity color tokens (critical/warning/info) wired into Tailwind theme, `fadeIn` keyframe animation on card add/remove, `@media print` styles for clean PDF export, seed timestamps anchored to "now" so the UI renders live data, `alerts_events` API mapping extended to include `severity`, ARCHITECTURE.md added.
+- **SSR prefetch (PR #5):** server-side prefetch for occupancy data on initial page load via `src/app/_prefetch.tsx` + React Query `HydrationBoundary`. `force-dynamic` on the root page to avoid build hangs; prefetch failures are non-fatal.
+- **Gauge ApexCharts refactor (PR #6):** gauge card switched from a custom SVG `radialBar` to ApexCharts `radialBar` with `shape: 'needle'`, discrete color bands (green/yellow/red at 30/70 thresholds), and a `computeGaugeFractions` helper for range mapping. Adds `apexcharts` + `react-apexcharts` deps.
+- **Tests:** 166 passing across 27 test files (up from 120 / 18 after the gauge refactor)
+
 ## Before building read
 
 `TechnicalTest/TechnicalTest.md` — the full spec. All requirements and evaluation criteria live here.
@@ -26,7 +32,7 @@ Application code on `main` branch. Next.js 16, TypeScript, Tailwind v4, Prisma 7
 
 data-explorer (profile CSVs) → infra (Prisma schema + seed) → backend (API) → frontend (UI) → polish (UX/testing/docs)
 
-Each phase depends on the previous. Do not parallelize.
+✓ **Completed.** All five phases are merged to `main`. Follow-on work (SSR prefetch, gauge ApexCharts refactor) has also landed — no in-flight feature branch.
 
 ## Data
 
@@ -230,6 +236,6 @@ No body text in the commit. If the subject needs more info, put it in the scope.
 - `TechnicalTest/` directory name has no space — no need to quote paths
 - `.opencode/.gitignore` ignores `node_modules`, `package.json`, `package-lock.json`, `bun.lock`, `.gitignore` itself
 - Two agent copies exist (`.opencode/agents/` and `.agents/`) — keep `.opencode/agents/` as source of truth
-- Git repo works on feature branches (`phase/*`). Current work is on `phase/4-frontend` and pending merge to `main`.
+- Git repo works on feature branches (`phase/*`, `feature/*`). All phase branches are merged to `main`; current work is on `main` directly.
 - Audit reports live in `docs/audits/YYYY-MM-DD/` — these ARE committed (human-facing docs)
 - All components use `cn()`, `data-slot`, named function exports, and `@/*` alias — preserve these patterns

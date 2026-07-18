@@ -56,3 +56,41 @@
 - [x] ~~**Task 17: GlobalFilters component** — frontend-agent~~
 - [x] ~~**Task 18: Navbar + StoreInitializer + layout wiring** — frontend-agent~~
 - [x] ~~**Task 19: Floor Plan page with SVG overlays** — frontend-agent~~
+
+### 2026-07-17 — Phase 5 Polish (PR #4)
+
+Branch: `phase/5-polish`. Final UX polish + documentation pass (plan Task 23 + remaining spec gaps).
+
+- [x] ~~**Severity color tokens** — `--color-severity-critical/-warning/-info` in `globals.css` :root, wired through Tailwind theme (`e26bfe2`, `9a7c5d3`)~~
+- [x] ~~**Canonical severity colors** — applied critical/warning/info palette across dashboard components (`b73b37f`)~~
+- [x] ~~**fadeIn keyframe animation** — opacity 0→1 + translateY 8px→0, applied on card add/remove (`e26bfe2`, `166d85e`)~~
+- [x] ~~**`@media print` styles** — hide nav/filters/palette, reset min-width, `break-inside: avoid` on cards (`e26bfe2`)~~
+- [x] ~~**Seed timestamps anchored to "now"** — relative offsets so UI renders live data (`4e889b2`, `0da6b9f`)~~
+- [x] ~~**`alerts_events` API severity mapping** — `c974620`, `ed5bf1e`~~
+- [x] ~~**ARCHITECTURE.md** — grounded in actual implementation, ~120 lines, covers state mgmt, data flow, DnD, dynamic axis, schema, SVG floor plan, security, testing, design decisions (`be234c8`)~~
+- [x] ~~**Merge PR #4** — `f49cb02`~~
+
+### 2026-07-17 — SSR Prefetch (PR #5)
+
+Branch: `feature/ssr-prefetch`. Eliminates first-paint waterfall by prefetching default cards' data on the server.
+
+- [x] ~~**`src/app/_prefetch.tsx`** — server component that prefetches every default card's query in parallel, dehydrates the React Query cache, and renders children inside `HydrationBoundary`~~
+- [x] ~~**`force-dynamic` on root page** — avoids build hangs from static-render attempts (`fd93dd4`)~~
+- [x] ~~**Non-fatal prefetch failures** — log + skip so a bad query doesn't break the page (`3950a51`)~~
+- [x] ~~**Pinned query key shape + `fetchCardQuery` contract test** — (`389e4a8`)~~
+- [x] ~~**Cleanup: remove useless spread in `fetchOccupancy` + unused interface** — (`a3ece82`)~~
+- [x] ~~**Merge PR #5** — `b07b3a1`~~
+
+### 2026-07-18 — Gauge ApexCharts Refactor (PR #6)
+
+Branch: `feature/gauge-apexcharts`. Replaced custom SVG `radialBar` gauge with ApexCharts `radialBar` + needle.
+
+- [x] ~~**ApexCharts deps** — added `apexcharts` + `react-apexcharts` (`e71500e`)~~
+- [x] ~~**Gauge plan docs** — plan + test-count baselines aligned to current `main` (`80dc5f0`, `170826c`)~~
+- [x] ~~**`computeGaugeFractions` helper** — range mapping (min/max/target) → 0–100, with `max===min` guard and clamp (`32a7cdf`)~~
+- [x] ~~**ApexCharts `radialBar` swap** — pointer gauge, 60% hollow, gradient track, target annotation, label formatter (`c26456f`)~~
+- [x] ~~**Needle shape + discrete color bands** — `shape: 'needle'`, green/yellow/red at 30/70 thresholds (`47c8033`)~~
+- [x] ~~**Test: bump gauge chart spy `waitFor` to 5s for CI** — (`317123b`)~~
+- [x] ~~**Plan update for needle shape + bands** — (`f83d392`)~~
+- [x] ~~**Merge PR #6** — `35811b9`~~
+- [x] ~~**Tests after refactor:** 166 passing across 27 test files (up from 120 / 18)~~

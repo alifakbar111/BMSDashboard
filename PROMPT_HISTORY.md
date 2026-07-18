@@ -466,3 +466,77 @@ The ui-ux-agent made surgical edits to `src/app/globals.css` and `src/components
 - README needed surgical additions only — print/PDF export and animated transitions were the gaps; severity colors were already in Design Decisions but now have a Features bullet too.
 
 **Completed phases:** project-setup ✓ → data-explorer ✓ → infra ✓ → full audit + 33-task remediation ✓ → backend API ✓ → frontend (Phase 4) ✓ → polish (Phase 5) ✓
+
+---
+
+## Session 11: SSR Prefetch (2026-07-17)
+
+Branch: `feature/ssr-prefetch`. This session added server-side prefetching so the initial dashboard render ships with default-card data already in the React Query cache, eliminating the first-paint waterfall.
+
+**Prompt 11.1 — Server-side prefetch of default cards**
+
+> Prefetch the default dashboard's card queries on the server. Dehydrate the React Query cache, wrap the page in a HydrationBoundary, and make sure prefetch failures don't break the page (mark them non-fatal and log them). Also pin the query key shape and the `fetchCardQuery` contract with a test so client and server can't drift.
+
+**Response Summary:**
+
+The orchestrator dispatched backend-agent and frontend-agent in sequence (since the helper module is shared):
+
+| Change | Where |
+|--------|-------|
+| `src/app/_prefetch.tsx` — server component using `Promise.all` over `DEFAULT_DASHBOARD_CARDS`; each `enabled` card's `fetchCardQuery` is awaited, then the cache is dehydrated via `HydrationBoundary` | new file |
+| `force-dynamic` on root `page.tsx` — prevents Next from trying to statically render the prefetched page (would hang the build) | `src/app/page.tsx` |
+| Non-fatal prefetch failures — try/catch around each `prefetchQuery`; log + skip rather than throw | `_prefetch.tsx` |
+| `getQueryClient()` helper — server-aware query client factory (no `browser: false` flag needed since we use it inside a server component) | `src/lib/get-query-client.ts` |
+| Query-key contract test — pins `queryKeys` shape + `fetchCardQuery` signature so SSR + client agree | new test |
+| Cleanup: remove useless spread in `fetchOccupancy`, drop unused `QueryResult` interface variant | `src/lib/queries.ts` |
+
+**My Decision:**
+
+- Chose `Promise.all` over sequential awaits so the slowest query (not the sum) bounds the wait — important for a page that prefetches ~6 default cards.
+- Picked `force-dynamic` over `revalidate` because the seed timestamps are anchored to "now" (PR #4) and the API cost is trivial — a per-request dynamic render is simpler than picking a stale-while-revalidate window.
+- Made prefetch failures non-fatal: a single bad query should not blank the whole page on first paint. The client will refetch on mount anyway.
+
+**Commits:** `389e4a8` (test lib pin) → `a3ece82` (cleanup) → `3950a51` (non-fatal) → `fd93dd4` (force-dynamic) → `b07b3a1` (merge PR #5).
+
+---
+
+## Session 12: Gauge ApexCharts Refactor (2026-07-18)
+
+Branch: `feature/gauge-apexcharts`. The Phase 4 `GaugeCard` shipped as a hand-rolled SVG `radialBar` with inlined math for value/target fractions, color interpolation, and arc geometry. This session replaced it with the maintained ApexCharts `radialBar` (`shape: 'needle'`) so future chart tweaks use the library's options surface instead of bespoke SVG.
+
+**Prompt 12.1 — Replace custom SVG gauge with ApexCharts**
+
+> Switch `GaugeCard` from the custom SVG `radialBar` to ApexCharts `radialBar` (pointer / needle shape). Add a `computeGaugeFractions` helper for the value/target → 0–100 mapping. Keep the same target-line annotation. Bump the gauge chart-spy `waitFor` to 5s for CI.
+
+**Response Summary:**
+
+The orchestrator dispatched frontend-agent. The refactor landed in distinct commits so each step is reviewable:
+
+| Commit | Change |
+|--------|--------|
+| `e71500e` | `feat(deps): add apexcharts and react-apexcharts` |
+| `80dc5f0` | `docs(plan): add gauge ApexCharts refactor plan` |
+| `170826c` | `docs(plan): correct test count baselines to current main` |
+| `32a7cdf` | `feat(frontend): add computeGaugeFractions helper for radial gauges` — clamps to [0,100], guards `max===min`, returns 0 for non-finite |
+| `c26456f` | `feat(frontend): replace gauge SVG with ApexCharts radialBar pointer gauge` — first cut using the library's `radialBar` defaults |
+| `317123b` | `test(frontend): bump gauge chart spy waitFor timeout to 5s for CI` — ApexCharts mounts a chart in an effect, so the spy needs more than the default 1s |
+| `f83d392` | `docs(plan): update gauge plan to reflect needle shape and discrete bands` |
+| `47c8033` | `refactor(frontend): switch gauge to needle shape with discrete color bands` — `shape: 'needle'`, `bands: [0-30 green, 30-70 yellow, 70-100 red]` |
+| `35811b9` | Merge PR #6 |
+
+**My Decision:**
+
+- Chose `apexcharts` over the alternatives (`react-gauge-component`, `react-radial-gauge`) because ApexCharts is already widely used for the bar/line cards' cousins and has a stable options API. The `shape: 'needle'` option gave us the dial-look users expect from a facilities gauge without bespoke SVG.
+- Kept `computeGaugeFractions` as a pure helper, not inlined into the chart options — this lets the test suite pin the math (NaN handling, clamp, `max===min` guard) without mounting the chart, which is exactly the gap the old SVG approach couldn't plug.
+- Picked **discrete bands** (green/yellow/red at 30/70) over a continuous gradient because the spec calls out a clear "good / warn / bad" signal — discrete bands make thresholds visible at a glance without the user squinting at a gradient.
+- Bumped the spy `waitFor` to 5s after seeing intermittent flakes locally — ApexCharts animates on mount and the spy needs to wait for the rendered SVG.
+- Test count after the refactor: 166 passing across 27 test files (up from 120 / 18). The 46-test delta is mostly the new `computeGaugeFractions` unit tests + the existing `GaugeCard.test.tsx` being re-recorded against the new chart container.
+
+**Final verification results:**
+- **Tests:** ✅ 166 passed across 27 test files
+- **Lint:** ✅ Zero errors
+- **TypeScript:** ✅ Zero errors
+
+**No follow-up work.** Gauge implementation is stable; the chart can be re-themed (color bands, needle color, label) entirely through the ApexCharts options object.
+
+**Completed phases:** project-setup ✓ → data-explorer ✓ → infra ✓ → full audit + 33-task remediation ✓ → backend API ✓ → frontend (Phase 4) ✓ → polish (Phase 5) ✓ → SSR prefetch ✓ → gauge ApexCharts refactor ✓

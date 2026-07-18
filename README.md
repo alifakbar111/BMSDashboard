@@ -111,15 +111,18 @@ pnpm dev
 - **Min-width 1280px** — Optimized for desktop monitoring stations
 - **Dark mode** — Via `next-themes` with system preference detection
 - **Alert severity colors** — Critical (red), Warning (orange), Info (blue) per spec
+- **ApexCharts for gauge** — Maintained `radialBar` library with `shape: 'needle'` and discrete color bands (green/yellow/red at 30/70) instead of a hand-rolled SVG, so theme/threshold tweaks go through the options object
 - **Prisma 7 config pattern** — URL not in schema; provided via `prisma.config.ts` and `DATABASE_URL` env var
 
 ## Features
 
 - **Drag-and-drop dashboard builder** — Compose dashboards with KPI, Bar, Line, and Gauge cards using `dnd-kit`
+- **ApexCharts gauge cards** — Pointer-style `radialBar` with discrete green/yellow/red color bands and a target-line annotation
 - **Dynamic data source and axis selection** — Each card can bind to a different table/metric and choose its own X/Y axes
 - **Global filters** — Building, floor, and time range filters applied across all cards
 - **SVG floor plan** — Interactive floor plan with occupancy overlays and tooltips
 - **Alert severity colors** — Critical (red), Warning (orange), Info (blue) via dedicated CSS tokens and `SeverityBadge`
+- **SSR prefetch** — Default cards' queries are prefetched on the server (`src/app/_prefetch.tsx`) and rehydrated via React Query's `HydrationBoundary` so the first paint ships with data
 - **Dark mode toggle and responsive layout** — System-aware theme with manual toggle and 1280px desktop-optimized shell
 - **Dashboard layout persistence** — Save/load layouts from `localStorage`, export/import JSON, duplicate and resize cards
 - **Animated transitions** — `fadeIn` keyframe on card add/remove for smooth visual feedback
