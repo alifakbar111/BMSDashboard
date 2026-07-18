@@ -49,8 +49,9 @@ function buildGaugeOptions(args: {
     },
     plotOptions: {
       radialBar: {
-        startAngle: -135,
-        endAngle: 135,
+        shape: 'needle' as const,
+        startAngle: -90,
+        endAngle: 90,
         hollow: { size: "60%", margin: 0 },
         track: {
           background: "#e5e7eb",
@@ -60,24 +61,35 @@ function buildGaugeOptions(args: {
         dataLabels: {
           name: { show: false },
           value: {
-            fontSize: "24px",
+            fontSize: "20px",
             fontWeight: 700,
-            offsetY: 8,
+            offsetY: 25,
             formatter: (val: number) => val.toFixed(0),
           },
         },
+        bands: [
+          { from: 0, to: 30, color: COLOR_GREEN },
+          { from: 30, to: 70, color: COLOR_YELLOW },
+          { from: 70, to: 100, color: COLOR_RED },
+        ],
+        needle: {
+          color: '#0F172A',
+          length: '70%',
+          baseWidth: 6,
+          tipWidth: 1,
+        }
       },
     },
-    fill: {
-      type: "gradient",
-      gradient: {
-        shade: "dark",
-        type: "horizontal",
-        shadeIntensity: 0.3,
-        gradientToColors: [COLOR_GREEN, COLOR_YELLOW, COLOR_RED],
-        stops: [0, 50, 100],
-      },
-    },
+    // fill: {
+    //   type: "gradient",
+    //   gradient: {
+    //     shade: "dark",
+    //     type: "horizontal",
+    //     shadeIntensity: 0.3,
+    //     gradientToColors: [COLOR_GREEN, COLOR_YELLOW, COLOR_RED],
+    //     stops: [0, 50, 100],
+    //   },
+    // },
     labels: [args.label],
     annotations: {
       yaxis: [
@@ -190,7 +202,7 @@ export default function GaugeCard({ config }: GaugeChartProps) {
         options={options}
         series={[fraction]}
         type="radialBar"
-        height={220}
+        height={160}
       />
       {config.yAxis?.label && (
         <div className="mt-1 text-xs text-muted-foreground">

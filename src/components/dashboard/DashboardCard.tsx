@@ -145,7 +145,7 @@ export default function DashboardCard({ card, onConfigure }: DashboardCardProps)
           </CardAction>
         </CardHeader>
 
-        <CardContent className="flex-1">
+        <CardContent className="flex-1 content-around">
           <CardBody card={card} />
         </CardContent>
       </Card>
