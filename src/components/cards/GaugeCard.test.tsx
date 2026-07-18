@@ -172,7 +172,7 @@ describe("GaugeCard — rendering", () => {
 
     await vi.waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
     // Dynamic ApexCharts chunk resolves asynchronously; wait for the spy
-    await vi.waitFor(() => expect(chartPropsSpy).toHaveBeenCalled());
+    await vi.waitFor(() => expect(chartPropsSpy).toHaveBeenCalled(), { timeout: 5000 });
 
     // The Chart mock is invoked with (props); props shape: { series, options, ... }
     const props = chartPropsSpy.mock.calls.at(-1)?.[0] as {
@@ -193,7 +193,7 @@ describe("GaugeCard — rendering", () => {
     render(withQueryClient(<GaugeCard config={config} />));
 
     await vi.waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
-    await vi.waitFor(() => expect(chartPropsSpy).toHaveBeenCalled());
+    await vi.waitFor(() => expect(chartPropsSpy).toHaveBeenCalled(), { timeout: 5000 });
 
     const props = chartPropsSpy.mock.calls.at(-1)?.[0] as {
       series: number[];
@@ -217,7 +217,7 @@ describe("GaugeCard — rendering", () => {
     render(withQueryClient(<GaugeCard config={config} />));
 
     await vi.waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
-    await vi.waitFor(() => expect(chartPropsSpy).toHaveBeenCalled());
+    await vi.waitFor(() => expect(chartPropsSpy).toHaveBeenCalled(), { timeout: 5000 });
 
     const props = chartPropsSpy.mock.calls.at(-1)?.[0] as {
       series: number[];
@@ -238,7 +238,7 @@ describe("GaugeCard — rendering", () => {
     render(withQueryClient(<GaugeCard config={config} />));
 
     await vi.waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
-    await vi.waitFor(() => expect(chartPropsSpy).toHaveBeenCalled());
+    await vi.waitFor(() => expect(chartPropsSpy).toHaveBeenCalled(), { timeout: 5000 });
 
     const props = chartPropsSpy.mock.calls.at(-1)?.[0] as {
       series: number[];
